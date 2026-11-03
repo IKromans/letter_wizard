@@ -13,7 +13,8 @@ This repository includes a GitHub Actions workflow that publishes the game whene
 1. Push the repository to GitHub.
 2. In the repository, open **Settings → Pages**.
 3. Under **Build and deployment**, choose **GitHub Actions** as the source.
-4. Push a commit to `master`, or start the **Deploy to GitHub Pages** workflow from the **Actions** tab.
-5. After the workflow succeeds, visit [https://ikromans.github.io/letter_wizard/](https://ikromans.github.io/letter_wizard/).
+4. Set the custom domain to `skanitis.lv` and save it. Its A records should point to GitHub Pages; `www.skanitis.lv` can remain a CNAME to `ikromans.github.io` and redirect to the apex domain.
+5. Push a commit to `master`, or start the **Deploy to GitHub Pages** workflow from the **Actions** tab.
+6. After the workflow succeeds and HTTPS is available, visit [https://skanitis.lv/](https://skanitis.lv/).
 
 The game runs entirely in the visitor's browser. Preferences, stars, and word history are stored locally in that browser; custom text is not uploaded to a server.
