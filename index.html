@@ -1,15 +1,324 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="lv">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="refresh" content="0; url=./burtinu_burvis.html">
-  <title>Burtiņu Burvis</title>
-  <script>
-    window.location.replace(new URL("burtinu_burvis.html", window.location.href));
-  </script>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#11142b">
+  <meta name="description" content="A little magic for curious minds. Choose a game and begin your adventure.">
+  <title>Skanītis — Burvju spēles</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --night: #11142b;
+      --violet: #302357;
+      --blue: #20466b;
+      --gold: #ffd67b;
+      --mint: #a4f0dc;
+      --ink: #fff9ee;
+      --muted: #c3bddc;
+      --glass: rgba(26, 27, 55, .7);
+    }
+    * { box-sizing: border-box; }
+    body {
+      min-height: 100vh;
+      margin: 0;
+      overflow-x: hidden;
+      color: var(--ink);
+      font-family: ui-rounded, "Trebuchet MS", system-ui, sans-serif;
+      background:
+        radial-gradient(ellipse at 50% 0%, color-mix(in srgb, var(--violet), transparent 25%), transparent 58%),
+        radial-gradient(ellipse at 90% 60%, color-mix(in srgb, var(--blue), transparent 40%), transparent 48%),
+        var(--night);
+      transition: background .6s ease;
+    }
+    body::before, body::after {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      content: "";
+      pointer-events: none;
+    }
+    body::before {
+      opacity: .48;
+      background-image:
+        radial-gradient(1px 1px at 12% 18%, #fff 98%, transparent),
+        radial-gradient(2px 2px at 82% 13%, var(--gold) 98%, transparent),
+        radial-gradient(1px 1px at 68% 32%, #fff 98%, transparent),
+        radial-gradient(1px 1px at 23% 55%, var(--mint) 98%, transparent),
+        radial-gradient(2px 2px at 91% 72%, #fff 98%, transparent),
+        radial-gradient(1px 1px at 42% 84%, var(--gold) 98%, transparent);
+      background-size: 290px 260px, 370px 320px, 430px 390px, 330px 410px, 510px 470px, 390px 350px;
+      animation: starDrift 50s linear infinite;
+    }
+    body::after {
+      inset: auto -10vw -22rem;
+      height: 34rem;
+      border-radius: 50%;
+      background: radial-gradient(ellipse, color-mix(in srgb, var(--violet), transparent 20%), transparent 70%);
+      filter: blur(35px);
+    }
+    @keyframes starDrift { to { transform: translateY(-35px); } }
+    .page { position: relative; z-index: 1; width: min(100% - 36px, 1050px); margin: 0 auto; padding: 22px 0 42px; }
+    .toolbar { display: flex; justify-content: flex-end; gap: 9px; }
+    .tool {
+      min-height: 42px;
+      padding: 9px 14px;
+      border: 1px solid #ffffff24;
+      border-radius: 999px;
+      background: #ffffff0c;
+      color: var(--ink);
+      font: inherit;
+      font-size: .9rem;
+      font-weight: 750;
+      cursor: pointer;
+      backdrop-filter: blur(12px);
+    }
+    .tool:hover { border-color: #ffffff70; background: #ffffff18; }
+    .hero { padding: clamp(42px, 9vh, 92px) 0 40px; text-align: center; }
+    .moon {
+      display: grid;
+      width: 98px;
+      height: 98px;
+      margin: 0 auto 20px;
+      place-items: center;
+      border: 1px solid #fff4c34d;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 30%, #fff6cf, #f8d77e 55%, #c39456);
+      box-shadow: 0 0 35px #ffd67b55, 0 0 110px #caaaff25;
+      font-size: 3.2rem;
+      animation: float 4s ease-in-out infinite;
+    }
+    @keyframes float { 50% { transform: translateY(-8px) rotate(4deg); } }
+    .eyebrow {
+      margin: 0 0 9px;
+      color: var(--mint);
+      font-size: .82rem;
+      font-weight: 800;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+    }
+    h1 {
+      margin: 0;
+      font-size: clamp(2.8rem, 8vw, 5.2rem);
+      letter-spacing: -.045em;
+      line-height: 1;
+      text-shadow: 0 4px 35px #c4a4ff50;
+    }
+    .intro {
+      max-width: 560px;
+      margin: 18px auto 0;
+      color: var(--muted);
+      font-size: clamp(1.05rem, 2.5vw, 1.28rem);
+      line-height: 1.65;
+    }
+    .choose {
+      margin: 0 0 19px;
+      color: var(--gold);
+      text-align: center;
+      font-size: .9rem;
+      font-weight: 800;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+    }
+    .games { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+    .game {
+      position: relative;
+      display: flex;
+      min-height: 260px;
+      flex-direction: column;
+      align-items: flex-start;
+      overflow: hidden;
+      padding: clamp(23px, 4vw, 34px);
+      border: 1px solid #ffffff20;
+      border-radius: 28px;
+      background: linear-gradient(145deg, var(--glass), #17182eaa);
+      box-shadow: 0 18px 55px #08091655, inset 0 1px #ffffff12;
+      color: inherit;
+      text-decoration: none;
+      backdrop-filter: blur(16px);
+      transition: transform .24s ease, border-color .24s ease, box-shadow .24s ease;
+    }
+    .game::after {
+      position: absolute;
+      right: -40px;
+      bottom: -72px;
+      width: 190px;
+      height: 190px;
+      border-radius: 50%;
+      background: var(--glow, #a58bff);
+      content: "";
+      opacity: .18;
+      filter: blur(54px);
+      transition: opacity .24s ease;
+    }
+    .game:hover, .game:focus-visible {
+      transform: translateY(-6px);
+      border-color: color-mix(in srgb, var(--gold), transparent 38%);
+      box-shadow: 0 24px 70px #08091677, 0 0 36px #b89aff1c;
+      outline: none;
+    }
+    .game:hover::after { opacity: .36; }
+    .game-typing { --glow: #8bafff; }
+    .game-math { --glow: #ffbf78; }
+    .icon {
+      display: grid;
+      width: 62px;
+      height: 62px;
+      margin-bottom: 19px;
+      place-items: center;
+      border: 1px solid #ffffff20;
+      border-radius: 20px;
+      background: #ffffff10;
+      font-size: 2rem;
+    }
+    .game h2 { margin: 0; font-size: clamp(1.55rem, 4vw, 2rem); }
+    .game p { max-width: 370px; margin: 9px 0 24px; color: var(--muted); line-height: 1.55; }
+    .enter { margin-top: auto; color: var(--gold); font-weight: 800; }
+    .enter span { display: inline-block; margin-left: 5px; transition: transform .2s ease; }
+    .game:hover .enter span { transform: translateX(5px); }
+    footer { padding-top: 37px; color: #a8a2c2; text-align: center; font-size: .88rem; }
+    .spark {
+      position: fixed;
+      z-index: 3;
+      pointer-events: none;
+      color: var(--gold);
+      font-size: var(--size, 14px);
+      text-shadow: 0 0 12px currentColor;
+      animation: sparkle .8s ease-out forwards;
+    }
+    @keyframes sparkle {
+      0% { opacity: 0; transform: translate(-50%, -50%) scale(.2) rotate(0); }
+      20% { opacity: 1; }
+      100% { opacity: 0; transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(1.25) rotate(80deg); }
+    }
+    @media (max-width: 640px) {
+      .page { width: min(100% - 26px, 500px); padding-top: 14px; }
+      .hero { padding-top: 48px; }
+      .games { grid-template-columns: 1fr; gap: 13px; }
+      .game { min-height: 225px; }
+      .toolbar { gap: 7px; }
+      .tool { padding-inline: 11px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+      .spark { display: none; }
+    }
+  </style>
 </head>
 <body>
-  <p>Opening the game… <a href="./burtinu_burvis.html">Click here if it does not open automatically.</a></p>
+  <main class="page">
+    <nav class="toolbar" aria-label="Settings">
+      <button class="tool" id="theme" type="button" aria-label="Change colors">🪄 Krāsas</button>
+      <button class="tool" id="language" type="button" aria-label="Switch language">🇱🇻 LV</button>
+    </nav>
+    <section class="hero" aria-labelledby="title">
+      <div class="moon" aria-hidden="true">🌙</div>
+      <p class="eyebrow" data-lv="Mazliet burvestības katru dienu" data-en="A little magic every day"></p>
+      <h1 id="title" data-lv="Skanītis" data-en="Skanītis"></h1>
+      <p class="intro" data-lv="Ienāc sapņainā pasaulē, kur burti pārtop zvaigznēs un skaitļi — mazās uzvarās." data-en="Step into a dreamy world where letters turn into stars and numbers become little victories."></p>
+    </section>
+    <p class="choose" data-lv="Izvēlies savu burvju piedzīvojumu" data-en="Choose your magical adventure"></p>
+    <section class="games" aria-label="Games">
+      <a class="game game-typing" href="./burtinu_burvis.html">
+        <span class="icon" aria-hidden="true">🪄</span>
+        <h2 data-lv="Burtiņu Burvis" data-en="Letter Wizard"></h2>
+        <p data-lv="Trenē rakstīšanu, lasi pasakas un krāj zvaigznes katram pareizajam burtam." data-en="Practise typing, explore stories and collect a star for every letter."></p>
+        <span class="enter"><span data-lv="Sākt rakstīt" data-en="Start typing"></span><span aria-hidden="true">✦</span></span>
+      </a>
+      <a class="game game-math" href="./ciparu_burvis.html">
+        <span class="icon" aria-hidden="true">🦊</span>
+        <h2 data-lv="Ciparu Burvis" data-en="Number Wizard"></h2>
+        <p data-lv="Risini saskaitīšanas, atņemšanas, reizināšanas un dalīšanas uzdevumus." data-en="Solve addition, subtraction, multiplication and division challenges."></p>
+        <span class="enter"><span data-lv="Sākt rēķināt" data-en="Start calculating"></span><span aria-hidden="true">✦</span></span>
+      </a>
+    </section>
+    <footer data-lv="Atrodi savu burvju dzirksti ✨" data-en="Find your own little spark ✨"></footer>
+  </main>
+  <script>
+    (() => {
+      const translations = {
+        lv: { language: "🇱🇻 LV", theme: "🪄 Krāsas", langLabel: "Pārslēgt valodu", themeLabel: "Mainīt krāsas" },
+        en: { language: "🇬🇧 EN", theme: "🪄 Colours", langLabel: "Switch language", themeLabel: "Change colours" }
+      };
+      const palettes = [
+        ["#10172a", "#293a65", "#422d62", "#ffd166", "#75e6c1"],
+        ["#0f1d1a", "#1f4a40", "#2b3b2a", "#e8c872", "#8fe3b8"],
+        ["#1c1424", "#4a2a45", "#5a3524", "#f2c078", "#8fd9bf"],
+        ["#0c1a24", "#134057", "#1d3550", "#f0cd7a", "#6fdcc9"],
+        ["#1b1612", "#43301f", "#3a2a3a", "#f0c27a", "#9ad9b0"],
+        ["#141414", "#3a2a1a", "#2a2a3a", "#ffb86b", "#a6e3a1"],
+        ["#1e1220", "#5a2a4e", "#3a2a5a", "#ff9ec0", "#b6f0d0"],
+        ["#16233a", "#2f5f8f", "#3d4f8f", "#ffd479", "#7ee8d0"],
+        ["#17200f", "#3c5a1f", "#2a4a3a", "#f2d46b", "#b4f07a"],
+        ["#1a1330", "#4b2f8a", "#2f3f8a", "#ffd07a", "#7fe6cf"],
+        ["#231419", "#6a2f2a", "#4a2a5a", "#ffc27a", "#9ce6b8"],
+        ["#0d1f21", "#14585a", "#1f3f5a", "#ffd27a", "#7df0d8"]
+      ];
+      const root = document.documentElement;
+      const get = (key, fallback) => {
+        try {
+          const value = localStorage.getItem(key);
+          return value === null ? fallback : JSON.parse(value);
+        } catch { return fallback; }
+      };
+      const set = (key, value) => {
+        try { localStorage.setItem(key, JSON.stringify(value)); } catch { /* Storage may be unavailable in private browsing. */ }
+      };
+      let lang = get("bb_lang", "lv");
+      if (!translations[lang]) lang = "lv";
+      let theme = Number(get("bb_theme", "0"));
+      if (!Number.isInteger(theme) || theme < 0 || theme >= palettes.length) theme = 0;
+
+      function applyLanguage() {
+        document.documentElement.lang = lang;
+        document.querySelectorAll("[data-lv]").forEach(el => { el.textContent = el.dataset[lang]; });
+        const words = translations[lang];
+        const langButton = document.getElementById("language");
+        const themeButton = document.getElementById("theme");
+        langButton.textContent = words.language;
+        langButton.setAttribute("aria-label", words.langLabel);
+        themeButton.textContent = words.theme;
+        themeButton.setAttribute("aria-label", words.themeLabel);
+        document.title = lang === "lv" ? "Skanītis — Burvju spēles" : "Skanītis — Wizard Games";
+      }
+      function applyTheme() {
+        const [night, violet, blue, gold, mint] = palettes[theme];
+        root.style.setProperty("--night", night);
+        root.style.setProperty("--violet", violet);
+        root.style.setProperty("--blue", blue);
+        root.style.setProperty("--gold", gold);
+        root.style.setProperty("--mint", mint);
+        set("bb_theme", theme);
+      }
+      document.getElementById("language").addEventListener("click", () => {
+        lang = lang === "lv" ? "en" : "lv";
+        set("bb_lang", lang);
+        applyLanguage();
+      });
+      document.getElementById("theme").addEventListener("click", () => {
+        theme = (theme + 1) % palettes.length;
+        applyTheme();
+      });
+      let lastSpark = 0;
+      window.addEventListener("pointermove", event => {
+        if (event.pointerType === "touch" || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+        const now = performance.now();
+        if (now - lastSpark < 48) return;
+        lastSpark = now;
+        const spark = document.createElement("span");
+        spark.className = "spark";
+        spark.textContent = Math.random() > .5 ? "✦" : "✧";
+        spark.style.left = `${event.clientX}px`;
+        spark.style.top = `${event.clientY}px`;
+        spark.style.setProperty("--dx", `${Math.random() * 36 - 18}px`);
+        spark.style.setProperty("--dy", `${-12 - Math.random() * 24}px`);
+        spark.style.setProperty("--size", `${10 + Math.random() * 10}px`);
+        document.body.appendChild(spark);
+        window.setTimeout(() => spark.remove(), 850);
+      }, { passive: true });
+      applyLanguage();
+      applyTheme();
+    })();
+  </script>
 </body>
 </html>

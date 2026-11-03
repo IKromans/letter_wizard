@@ -31,7 +31,8 @@ jobs:
       - name: Prepare static site
         run: |
           mkdir -p _site
-          cp burtinu_burvis.html _site/index.html
+          cp index.html burtinu_burvis.html ciparu_burvis.html _site/
+          cp -r fonts _site/fonts
           cp CNAME _site/CNAME
           touch _site/.nojekyll
 

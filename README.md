@@ -1,14 +1,14 @@
-# Burtiņu Burvis
+# Skanītis — Burvju spēles
 
-A small Latvian/English typing game for children. The game is a self-contained static HTML page; it needs no server, build step, or external dependencies.
+A small Latvian/English game site for children, with a typing game and a math game. Both games are self-contained static HTML pages; no server, build step, or external dependencies are required.
 
 ## Run locally
 
-Open `burtinu_burvis.html` in a browser.
+Open `index.html` in a browser to choose a game. The typing and math games are also available directly from `burtinu_burvis.html` and `ciparu_burvis.html`.
 
 ## Publish with GitHub Pages
 
-This repository includes a GitHub Actions workflow that publishes the game whenever changes are pushed to `master`. It copies `burtinu_burvis.html` to the site's `index.html`, so the project opens directly at its Pages address.
+This repository includes a GitHub Actions workflow that publishes the site whenever changes are pushed to `master`. It publishes the landing page and both games, so visitors can choose a game at the site's home page.
 
 1. Push the repository to GitHub.
 2. In the repository, open **Settings → Pages**.
@@ -17,4 +17,4 @@ This repository includes a GitHub Actions workflow that publishes the game whene
 5. Push a commit to `master`, or start the **Deploy to GitHub Pages** workflow from the **Actions** tab.
 6. After the workflow succeeds and HTTPS is available, visit [https://skanitis.lv/](https://skanitis.lv/).
 
-The game runs entirely in the visitor's browser. Preferences, stars, and word history are stored locally in that browser; custom text is not uploaded to a server.
+The games run entirely in the visitor's browser. Language, color theme, sound preferences, stars, and word history are stored locally in that browser; custom typing text is not uploaded to a server.
