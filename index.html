@@ -200,6 +200,7 @@
       .toolbar { gap: 7px; }
       .tool { padding-inline: 11px; }
     }
+    @media (max-width: 420px) { .toolbar { gap: 6px; } .tool { min-height: 38px; padding-inline: 9px; font-size: .82rem; } }
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
       .spark { display: none; }
@@ -210,7 +211,7 @@
   <main class="page">
     <nav class="toolbar" aria-label="Settings">
       <button class="tool" id="theme" type="button" aria-label="Change colors">🪄 Krāsas</button>
-      <button class="tool" id="language" type="button" aria-label="Switch language">🇱🇻 LV</button>
+      <button class="tool" id="language" type="button" aria-label="Switch language">🌐 LV</button>
     </nav>
     <section class="hero" aria-labelledby="title">
       <div class="moon" aria-hidden="true">🌙</div>
@@ -239,8 +240,8 @@
   <script>
     (() => {
       const translations = {
-        lv: { language: "🇱🇻 LV", theme: "🪄 Krāsas", langLabel: "Pārslēgt valodu", themeLabel: "Mainīt krāsas" },
-        en: { language: "🇬🇧 EN", theme: "🪄 Colours", langLabel: "Switch language", themeLabel: "Change colours" }
+        lv: { language: "🌐 LV", theme: "🪄 Krāsas", langLabel: "Pārslēgt valodu", themeLabel: "Mainīt krāsas" },
+        en: { language: "🌐 EN", theme: "🪄 Colours", langLabel: "Switch language", themeLabel: "Change colours" }
       };
       const palettes = [
         ["#10172a", "#293a65", "#422d62", "#ffd166", "#75e6c1"],

@@ -58,18 +58,11 @@ header {
 h1 { font-size: clamp(22px, 4vw, 32px); margin: 0; letter-spacing: .2px; }
 .sub { color: var(--muted); font-size: 13px; margin-top: 3px; }
 
-.tools { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
-.tool {
- cursor: pointer;
- font-size: 13px;
- font-weight: 700;
- padding: 9px 13px;
- border-radius: 99px;
- border: 1px solid #ffffff20;
- background-color: #ffffff0b;
- color: var(--ink);
-}
-.tools a.tool { text-decoration: none; }
+.tools{display:flex;gap:9px;align-items:center;flex-wrap:wrap;justify-content:flex-end;margin-left:auto}
+.tool{display:inline-flex;align-items:center;min-height:42px;padding:9px 14px;border:1px solid #ffffff24;border-radius:999px;background:#ffffff0c;color:var(--ink);font-family:ui-rounded,"Trebuchet MS",system-ui,sans-serif;font-size:.9rem;font-weight:750;line-height:1.2;text-decoration:none;cursor:pointer;backdrop-filter:blur(12px)}
+.tool:hover{border-color:#ffffff70;background:#ffffff18}
+@media(max-width:640px){.tools{gap:7px}.tool{padding-inline:11px}}
+@media(max-width:420px){.tools{gap:6px}.tool{min-height:38px;padding-inline:9px;font-size:.82rem}}
 .pill {
  border: 1px solid #ffffff20;
  background: #ffffff0b;
@@ -209,12 +202,9 @@ summary{cursor:pointer;font-weight:800;color:var(--gold)}
   </div>
   <div class="tools">
    <a class="tool" href="./index.html" data-i="home"></a>
-   <button class="tool" id="themeBtn" data-i="theme"></button>
-   <button class="tool" id="soundBtn" aria-pressed="false">🔊 Skaņa</button>
-   <select class="tool" id="lang" aria-label="Valoda">
-    <option value="lv">🇱🇻 Latviešu</option>
-    <option value="en">🇬🇧 English</option>
-   </select>
+   <button class="tool" id="themeBtn" type="button" data-i="theme"></button>
+   <button class="tool" id="soundBtn" type="button" aria-pressed="false">🔊 Skaņa</button>
+   <button class="tool" id="lang" type="button" data-i="lang_btn" aria-label="Switch language">🌐 LV</button>
   </div>
  </header>
 
@@ -353,12 +343,12 @@ const STORIES_EN=[
 const WORDS={lv:WORDS_LV,en:WORDS_EN},STORIES={lv:STORIES_LV,en:STORIES_EN};
 let lang=store.get("bb_lang","lv");if(!WORDS[lang])lang="lv";
 const I18N={
-lv:{title:"Burtiņu Burvis",sub:"Raksti, mācies un krāj zvaigznes!",home:"✨ Sākums",m_words:"Īsie vārdi",m_story:"Pasaku teikumi",m_custom:"📚 Mans teksts",d30:"30 sekundes",d60:"60 sekundes",d0:"Bez taimera (bezgalīgi)",l_easy:"Vieglāk",l_normal:"Vidēji",l_hard:"Mazliet grūtāk",start:"Sākt spēli ▶",finish:"Pabeigt ■",s_time:"Laiks",s_speed:"Ātrums",s_acc:"Pareizi",s_stars:"Zvaigznes",hint:"Nospied <b>Sākt spēli</b> un sāc rakstīt. Vari klikšķināt uz teksta laukuma.",sum:"📚 Mans teksts — ielīmē pasaku, dzejoli vai skolas tekstu",ph:"Ielīmē šeit savu tekstu (pasaku, dzejoli, skolas uzdevumu)…",keep:"Saglabāt rindiņas (dzejoļiem)",use:"Sākt ar šo tekstu ▶",small:"Ielīmē tekstu, un spied „Sākt ar šo tekstu”. Ja tekstā ir dzejolis, ieslēdz „Saglabāt rindiņas” — tad rindiņas beigās jāspiež Enter. Pēdiņas un domuzīmes tiek vienkāršotas, lai bērnam būtu viegli rakstīt.",u_wpm:"vārdi/min",u_acc:"precizitāte",u_stars:"zvaigznes",again:"Spēlēt vēlreiz ✨",foot_tip:"Padoms: nesteidzies — sākumā svarīgākais ir rakstīt pareizi. ✨",foot_credit:"2026",theme:"🪄 Krāsas",snd_on:"🔊 Skaņa",snd_off:"🔇 Bez skaņas",
+lv:{title:"Burtiņu Burvis",sub:"Raksti, mācies un krāj zvaigznes!",home:"✨ Sākums",m_words:"Īsie vārdi",m_story:"Pasaku teikumi",m_custom:"📚 Mans teksts",d30:"30 sekundes",d60:"60 sekundes",d0:"Bez taimera (bezgalīgi)",l_easy:"Vieglāk",l_normal:"Vidēji",l_hard:"Mazliet grūtāk",start:"Sākt spēli ▶",finish:"Pabeigt ■",s_time:"Laiks",s_speed:"Ātrums",s_acc:"Pareizi",s_stars:"Zvaigznes",hint:"Nospied <b>Sākt spēli</b> un sāc rakstīt. Vari klikšķināt uz teksta laukuma.",sum:"📚 Mans teksts — ielīmē pasaku, dzejoli vai skolas tekstu",ph:"Ielīmē šeit savu tekstu (pasaku, dzejoli, skolas uzdevumu)…",keep:"Saglabāt rindiņas (dzejoļiem)",use:"Sākt ar šo tekstu ▶",small:"Ielīmē tekstu, un spied „Sākt ar šo tekstu”. Ja tekstā ir dzejolis, ieslēdz „Saglabāt rindiņas” — tad rindiņas beigās jāspiež Enter. Pēdiņas un domuzīmes tiek vienkāršotas, lai bērnam būtu viegli rakstīt.",u_wpm:"vārdi/min",u_acc:"precizitāte",u_stars:"zvaigznes",again:"Spēlēt vēlreiz ✨",foot_tip:"Padoms: nesteidzies — sākumā svarīgākais ir rakstīt pareizi. ✨",foot_credit:"2026",theme:"🪄 Krāsas",lang_btn:"🌐 LV",snd_on:"🔊 Skaņa",snd_off:"🔇 Bez skaņas",
  lbl_words:"Ieraksti redzamos vārdus",lbl_story:"Pārraksti pasakas tekstu",lbl_custom:"Pārraksti savu tekstu",lbl_enter:" (rindiņas beigās spied Enter)",lbl_my:"Mans teksts",ask_text:"Vispirms ielīmē savu tekstu zemāk 👇",no_text:"Nav teksta, ko rakstīt.",ready:"Gatavs",go:"Raksti!",done:"Pabeigts",msg_go:"Tu to vari! Raksti uzmanīgi. 🌈",msg_done:"Spēle pabeigta — malacis!",r_text:"Teksts pabeigts! 🎉",r_great:"Fantastiski!",r_good:"Labs darbs!",t_great:"Tu esi īsts burtu burvis! Turpini tā!",t_good:"Trenējies vēl mazliet, un tev izdosies vēl labāk!",wand:"Burvju nūjiņa nomainīja krāsas: ",names:["Nakts","Mežs","Vakars","Jūra","Kakao","Ogle","Ziedi","Debesis","Laima","Ceriņi","Saulriets","Tirkīzs"]},
-en:{title:"Letter Wizard",sub:"Type, learn and collect stars!",home:"✨ Home",m_words:"Short words",m_story:"Fairytale sentences",m_custom:"📚 My text",d30:"30 seconds",d60:"60 seconds",d0:"No timer (endless)",l_easy:"Easier",l_normal:"Medium",l_hard:"A little harder",start:"Start game ▶",finish:"Finish ■",s_time:"Time",s_speed:"Speed",s_acc:"Correct",s_stars:"Stars",hint:"Press <b>Start game</b> and begin typing. You can also click the text area.",sum:"📚 My text — paste a fairytale, a poem or a school text",ph:"Paste your own text here (a fairytale, a poem, a school task)…",keep:"Keep line breaks (for poems)",use:"Start with this text ▶",small:"Paste a text and press “Start with this text”. For a poem, turn on “Keep line breaks” — then press Enter at the end of each line. Quotes and dashes are simplified so they are easy for a child to type.",u_wpm:"words/min",u_acc:"accuracy",u_stars:"stars",again:"Play again ✨",foot_tip:"Tip: take your time — typing correctly matters most at the start. ✨",foot_credit:"2026",theme:"🪄 Colours",snd_on:"🔊 Sound",snd_off:"🔇 Sound off",
+en:{title:"Letter Wizard",sub:"Type, learn and collect stars!",home:"✨ Home",m_words:"Short words",m_story:"Fairytale sentences",m_custom:"📚 My text",d30:"30 seconds",d60:"60 seconds",d0:"No timer (endless)",l_easy:"Easier",l_normal:"Medium",l_hard:"A little harder",start:"Start game ▶",finish:"Finish ■",s_time:"Time",s_speed:"Speed",s_acc:"Correct",s_stars:"Stars",hint:"Press <b>Start game</b> and begin typing. You can also click the text area.",sum:"📚 My text — paste a fairytale, a poem or a school text",ph:"Paste your own text here (a fairytale, a poem, a school task)…",keep:"Keep line breaks (for poems)",use:"Start with this text ▶",small:"Paste a text and press “Start with this text”. For a poem, turn on “Keep line breaks” — then press Enter at the end of each line. Quotes and dashes are simplified so they are easy for a child to type.",u_wpm:"words/min",u_acc:"accuracy",u_stars:"stars",again:"Play again ✨",foot_tip:"Tip: take your time — typing correctly matters most at the start. ✨",foot_credit:"2026",theme:"🪄 Colours",lang_btn:"🌐 EN",snd_on:"🔊 Sound",snd_off:"🔇 Sound off",
  lbl_words:"Type the words you see",lbl_story:"Copy the story text",lbl_custom:"Copy your own text",lbl_enter:" (press Enter at the end of each line)",lbl_my:"My text",ask_text:"First paste your own text below 👇",no_text:"There is no text to type.",ready:"Ready",go:"Type!",done:"Finished",msg_go:"You can do it! Type carefully. 🌈",msg_done:"Game over — well done!",r_text:"Text finished! 🎉",r_great:"Fantastic!",r_good:"Good job!",t_great:"You are a true letter wizard! Keep it up!",t_good:"Practise a little more and you'll do even better!",wand:"The magic wand changed the colours: ",names:["Night","Forest","Dusk","Sea","Cocoa","Ember","Blossom","Sky","Lime","Lilac","Sunset","Turquoise"]}};
 const t=k=>I18N[lang][k];
-function applyLang(){document.documentElement.lang=lang;document.title=t("title")+(lang==="en"?" — typing game":" — rakstīšanas spēle");document.querySelectorAll("[data-i]").forEach(e=>e.innerHTML=t(e.dataset.i));document.querySelectorAll("[data-p]").forEach(e=>e.placeholder=t(e.dataset.p));$("themeBtn").title=t("wand").replace(/: $/,"");showSound()}
+function applyLang(){document.documentElement.lang=lang;document.title=t("title")+(lang==="en"?" — typing game":" — rakstīšanas spēle");document.querySelectorAll("[data-i]").forEach(e=>e.innerHTML=t(e.dataset.i));document.querySelectorAll("[data-p]").forEach(e=>e.placeholder=t(e.dataset.p));$("themeBtn").title=t("wand").replace(/: $/,"");$("lang").setAttribute("aria-label",lang==="lv"?"Switch language":"Pārslēgt valodu");showSound()}
 let streak=0,best=0,src=null,target="",prev=0,started=false,finished=false,startAt=0,endAt=0,dur=30,timer=null,keys=0,keysOk=0,doneOk=0,doneLen=0,cur=0,finAt=0,stars=store.get("bb_stars",0),audioCtx=null;
 let muted=store.get("bb_mute",false),theme=store.get("bb_theme",0);
 function sound(freq=660,duration=.12,type="sine",volume=.045){if(muted)return;try{audioCtx=audioCtx||new(window.AudioContext||window.webkitAudioContext)();const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type=type;o.frequency.value=freq;g.gain.setValueAtTime(volume,audioCtx.currentTime);g.gain.exponentialRampToValueAtTime(.001,audioCtx.currentTime+duration);o.connect(g);g.connect(audioCtx.destination);o.start();o.stop(audioCtx.currentTime+duration)}catch(e){}}
@@ -641,10 +631,11 @@ ta.addEventListener("paste",e=>e.preventDefault());ta.addEventListener("drop",e=
 ta.addEventListener("keydown",e=>{if(/^(Arrow|Home$|End$|Page)/.test(e.key))e.preventDefault()});
 const caret=()=>{const n=ta.value.length;ta.setSelectionRange(n,n)};ta.addEventListener("click",caret);ta.addEventListener("select",caret);
 $("startBtn").addEventListener("click",start);$("resetBtn").addEventListener("click",start);$("againBtn").addEventListener("click",start);$("finishBtn").addEventListener("click",()=>finish("manual"));
-["mode","level","duration","keep","lang"].forEach(id=>$(id).addEventListener("change",()=>{if(id==="lang"){lang=$("lang").value;store.set("bb_lang",lang);applyLang()}if(id!=="keep"||$("mode").value==="custom")start()}));
+["mode","level","duration","keep"].forEach(id=>$(id).addEventListener("change",()=>{if(id!=="keep"||$("mode").value==="custom")start()}));
+$("lang").addEventListener("click",()=>{lang=lang==="lv"?"en":"lv";store.set("bb_lang",lang);applyLang();start()});
 $("promptWrap").addEventListener("click",()=>{if(target)ta.focus()});
 document.addEventListener("keydown",e=>{if(e.key==="Escape")$("overlay").classList.remove("show");if(e.key==="Enter"&&finished&&Date.now()-finAt>800&&!/INPUT|TEXTAREA|SELECT|BUTTON/.test(document.activeElement.tagName))start()});
-$("lang").value=lang;applyLang();
+applyLang();
 start();
 let lastCursorSpark=0;
 addEventListener("pointermove",e=>{
