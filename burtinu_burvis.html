@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="lv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Burtiņu Burvis</title>
+<style>
+:root {
+ --bg: #10172a;
+ --g1: #293a65;
+ --g2: #422d62;
+ --panel: #19243d;
+ --panel2: #202e4b;
+ --c1: #1c2945;
+ --c2: #17223a;
+ --field: #101a30;
+ --ink: #f4f6ff;
+ --muted: #aab6d3;
+ --gold: #ffd166;
+ --mint: #75e6c1;
+ --blue: #8ab4ff;
+ --bad: #ff6b7d;
+ --pend: #71809f;
+ --foot: #8290ad;
+ --m1: #27385c;
+}
+
+* { box-sizing: border-box; }
+html { color-scheme: dark; }
+
+body {
+ margin: 0;
+ min-height: 100vh;
+ background:
+  radial-gradient(ellipse at 20% 0%, var(--g1) 0, transparent 40%),
+  radial-gradient(ellipse at 90% 20%, var(--g2) 0, transparent 35%),
+  var(--bg);
+ color: var(--ink);
+ font-family: ui-rounded, "Trebuchet MS", system-ui, sans-serif;
+ display: flex;
+ justify-content: center;
+ padding: 26px 16px 40px;
+}
+
+.app { width: min(100%, 1000px); }
+
+header {
+ display: flex;
+ align-items: center;
+ justify-content: space-between;
+ gap: 12px;
+ margin-bottom: 20px;
+ flex-wrap: wrap;
+}
+
+.brand { display: flex; align-items: center; gap: 12px; }
+.logo { font-size: 38px; filter: drop-shadow(0 4px 12px #0005); }
+h1 { font-size: clamp(22px, 4vw, 32px); margin: 0; letter-spacing: .2px; }
+.sub { color: var(--muted); font-size: 13px; margin-top: 3px; }
+
+.tools { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.tool {
+ cursor: pointer;
+ font-size: 13px;
+ font-weight: 700;
+ padding: 9px 13px;
+ border-radius: 99px;
+ border: 1px solid #ffffff20;
+ background-color: #ffffff0b;
+ color: var(--ink);
+}
+.pill {
+ border: 1px solid #ffffff20;
+ background: #ffffff0b;
+ padding: 9px 13px;
+ border-radius: 99px;
+ color: var(--muted);
+ font-size: 13px;
+}
+.panel {
+ background: linear-gradient(145deg, var(--c1), var(--c2));
+ border: 1px solid #ffffff18;
+ border-radius: 22px;
+ padding: 22px;
+ box-shadow: 0 18px 50px #0003;
+}
+.controls { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 18px; }
+
+select,
+button,
+input[type="text"] {
+ font: inherit;
+ border: 0;
+ border-radius: 12px;
+ padding: 11px 14px;
+}
+select,
+input[type="text"] {
+ background-color: var(--panel2);
+ color: var(--ink);
+ border: 1px solid #ffffff20;
+}
+select {
+ appearance: none;
+ -webkit-appearance: none;
+ cursor: pointer;
+ padding-right: 34px;
+ background-image:
+  linear-gradient(45deg, transparent 50%, var(--muted) 50%),
+  linear-gradient(135deg, var(--muted) 50%, transparent 50%);
+ background-position: calc(100% - 18px) 55%, calc(100% - 13px) 55%;
+ background-size: 5px 5px;
+ background-repeat: no-repeat;
+}
+select option { background: var(--panel); color: var(--ink); }
+select option:checked { background: var(--c1); color: var(--gold); }
+button { cursor: pointer; font-weight: 800; transition: transform .15s, filter .15s; }
+button:hover:not(:disabled) { transform: translateY(-2px); filter: brightness(1.08); }
+button:active { transform: translateY(0); }
+button:disabled { opacity: .4; cursor: default; }
+.primary { background: linear-gradient(135deg, #ffd166, #ffad5c); color: #38270c; box-shadow: 0 5px 0 #b87837; }
+.secondary { background: #ffffff12; color: var(--ink); border: 1px solid #ffffff20; }
+
+.stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 18px; }
+.stat { background: #ffffff09; border: 1px solid #ffffff12; border-radius: 15px; padding: 12px 14px; }
+.stat small { display: block; color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: 1px; }
+.stat strong { display: block; font-size: 25px; margin-top: 3px; color: var(--gold); font-variant-numeric: tabular-nums; }
+.progress { height: 8px; background: #ffffff12; border-radius: 99px; overflow: hidden; margin: 0 0 18px; }
+.progress > div { height: 100%; width: 0; background: linear-gradient(90deg, var(--mint), var(--blue)); transition: width .2s; }
+.prompt-wrap { position: relative; background: var(--field); border: 1px solid #ffffff17; border-radius: 18px; padding: 24px; min-height: 174px; }
+.prompt-label { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 1.4px; margin-bottom: 14px; }
+.prompt { font-size: clamp(21px, 3.3vw, 31px); line-height: 1.75; letter-spacing: .3px; white-space: pre-wrap; overflow-wrap: anywhere; user-select: none; }
+.prompt .correct { color: var(--mint); }
+.prompt .wrong { color: var(--bad); background: #ff6b7d20; border-radius: 4px; }
+.prompt .current { border-bottom: 3px solid var(--gold); animation: blink 1s infinite; }
+.prompt .pending { color: var(--pend); }
+@keyframes blink{50%{border-color:transparent}}
+.input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:text;resize:none;border:0}
+.hint{text-align:center;color:var(--muted);font-size:13px;margin:13px 0 0}
+.bottom{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap;margin-top:18px}
+.message{color:var(--muted);font-size:14px;min-height:22px}
+details{margin-top:18px;background:#ffffff08;border:1px solid #ffffff14;border-radius:16px;padding:14px 16px}
+summary{cursor:pointer;font-weight:800;color:var(--gold)}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:12px}
+.row input[type=text]{flex:1;min-width:200px}
+.row label{color:var(--muted);font-size:13px;display:flex;gap:6px;align-items:center}
+#customText{width:100%;height:140px;margin-top:12px;background:var(--field);color:var(--ink);border:1px solid #ffffff20;border-radius:12px;padding:12px;font:inherit;font-size:15px;resize:vertical}
+.small{font-size:12px;color:var(--muted);margin-top:8px;line-height:1.5}
+.footer{text-align:center;color:var(--foot);font-size:12px;margin-top:18px}
+.overlay{position:fixed;inset:0;background:#080d1dcc;display:none;align-items:center;justify-content:center;padding:20px;z-index:5}
+.overlay.show{display:flex}
+.modal{width:min(440px,100%);text-align:center;background:linear-gradient(145deg,var(--m1),var(--panel));border:1px solid #ffffff2b;border-radius:24px;padding:30px;box-shadow:0 20px 70px #0008;position:relative;overflow:hidden}
+.modal .trophy{font-size:58px}.modal h2{font-size:30px;margin:8px 0}.modal p{color:var(--muted);line-height:1.5}
+.result{display:flex;justify-content:center;gap:26px;margin:18px 0}.result strong{display:block;font-size:27px;color:var(--gold)}.result span{font-size:12px;color:var(--muted)}
+.spark{position:fixed;pointer-events:none;z-index:9;font-size:20px;animation:fly 1.2s ease-out forwards}
+@keyframes fly{0%{transform:translate(0,0) scale(.5) rotate(0);opacity:1}100%{transform:translate(var(--dx),var(--dy)) scale(1.4) rotate(160deg);opacity:0}}
+@media (max-width: 600px) {
+ body { padding: 16px 10px 28px; }
+ .panel { padding: 15px; }
+ .stats { grid-template-columns: repeat(2, 1fr); }
+ .prompt-wrap { padding: 17px; min-height: 190px; }
+ .controls { gap: 7px; }
+ .controls select { flex: 1; min-width: 125px; }
+ .brand .logo { font-size: 31px; }
+}
+.prompt .pop{display:inline-block;animation:popk .28s ease-out}
+@keyframes popk{0%{transform:scale(1.7);color:var(--gold)}100%{transform:scale(1)}}
+.prompt .shake{display:inline-block;animation:shk .22s}
+@keyframes shk{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+.dot{position:fixed;pointer-events:none;z-index:6;font-size:15px;animation:rise .75s ease-out forwards}
+@keyframes rise{0%{transform:translate(-50%,0) scale(.5);opacity:1}100%{transform:translate(calc(-50% + var(--dx)),-38px) scale(1.3);opacity:0}}
+.prompt-wrap{transition:box-shadow .3s,border-color .3s}
+.prompt-wrap.hot{border-color:var(--gold);box-shadow:0 0 26px -6px var(--gold)}
+.prompt-wrap.flash{animation:flash .5s}
+@keyframes flash{0%{box-shadow:0 0 0 0 var(--mint)}100%{box-shadow:0 0 0 16px transparent}}
+.combo{position:absolute;top:14px;right:16px;font-weight:800;font-size:18px;color:var(--gold);opacity:0;transform:scale(.8);transition:opacity .2s,transform .2s;pointer-events:none}
+.combo.show{opacity:1;transform:scale(1)}.combo.bump{animation:bump .4s}
+@keyframes bump{50%{transform:scale(1.6) rotate(-6deg)}}
+.progress>div{position:relative;overflow:hidden}
+.progress>div::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent,#ffffff55,transparent);animation:shim 1.8s linear infinite}
+@keyframes shim{from{transform:translateX(-100%)}to{transform:translateX(100%)}}
+.overlay.show{animation:fadein .3s}
+@keyframes fadein{from{opacity:0}}
+.overlay.show .modal{animation:modalin .6s cubic-bezier(.2,1.4,.4,1)}
+@keyframes modalin{0%{transform:scale(.6) translateY(40px);opacity:0}100%{transform:none;opacity:1}}
+.modal::before{content:"";position:absolute;inset:-60%;background:repeating-conic-gradient(#ffffff0c 0 12deg,transparent 12deg 24deg);animation:spin 40s linear infinite;pointer-events:none}
+.modal>*{position:relative}
+@keyframes spin{to{transform:rotate(360deg)}}
+.overlay.show .trophy{display:inline-block;animation:trophy 1.8s ease-in-out infinite}
+@keyframes trophy{0%,100%{transform:translateY(0) rotate(-6deg)}50%{transform:translateY(-10px) rotate(6deg) scale(1.1)}}
+.result strong{animation:none}
+.confetti{position:fixed;top:-20px;z-index:8;pointer-events:none;border-radius:2px;animation:fall linear forwards}
+@keyframes fall{0%{transform:translate(0,0) rotate(0);opacity:1}100%{transform:translate(var(--dx),108vh) rotate(var(--rot));opacity:.9}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}.confetti,.spark,.dot{display:none}}
+</style>
+</head>
+<body>
+<main class="app">
+ <header>
+  <div class="brand">
+   <div class="logo">🪄</div>
+   <div>
+    <h1 data-i="title"></h1>
+    <div class="sub" data-i="sub"></div>
+   </div>
+  </div>
+  <div class="tools">
+   <button class="tool" id="themeBtn" data-i="theme"></button>
+   <button class="tool" id="soundBtn" aria-pressed="false">🔊 Skaņa</button>
+   <select class="tool" id="lang" aria-label="Valoda">
+    <option value="lv">🇱🇻 Latviešu</option>
+    <option value="en">🇬🇧 English</option>
+   </select>
+  </div>
+ </header>
+
+ <section class="panel">
+  <div class="controls">
+   <select id="mode" aria-label="Spēles režīms">
+    <option value="words" data-i="m_words"></option>
+    <option value="story" data-i="m_story"></option>
+    <option value="custom" data-i="m_custom"></option>
+   </select>
+   <select id="duration" aria-label="Spēles ilgums">
+    <option value="30" data-i="d30"></option>
+    <option value="60" data-i="d60"></option>
+    <option value="0" data-i="d0"></option>
+   </select>
+   <select id="level" aria-label="Grūtības pakāpe">
+    <option value="easy" data-i="l_easy"></option>
+    <option value="normal" selected data-i="l_normal"></option>
+    <option value="hard" data-i="l_hard"></option>
+   </select>
+   <button class="primary" id="startBtn" data-i="start"></button>
+   <button class="secondary" id="resetBtn" title="Sākt no jauna">↻</button>
+   <button class="secondary" id="finishBtn" disabled data-i="finish"></button>
+  </div>
+
+  <div class="stats">
+   <div class="stat"><small data-i="s_time"></small><strong id="time">30</strong></div>
+   <div class="stat"><small data-i="s_speed"></small><strong id="wpm">0</strong></div>
+   <div class="stat"><small data-i="s_acc"></small><strong id="accuracy">100%</strong></div>
+   <div class="stat"><small data-i="s_stars"></small><strong id="stars">0 ⭐</strong></div>
+  </div>
+  <div class="progress"><div id="progress"></div></div>
+
+  <div class="prompt-wrap" id="promptWrap">
+   <div class="prompt-label" id="promptLabel">Ieraksti redzamos vārdus</div>
+   <div class="prompt" id="prompt"></div>
+   <div class="combo" id="combo"></div>
+   <textarea
+    class="input"
+    id="typing"
+    aria-label="Rakstīšanas laukums"
+    autocomplete="off"
+    autocorrect="off"
+    autocapitalize="off"
+    spellcheck="false"
+   ></textarea>
+  </div>
+  <div class="hint" data-i="hint"></div>
+  <div class="bottom">
+   <div class="message" id="message">Katrs burts ir solis pretī burvju pilij! 🏰</div>
+   <div class="pill" id="status">Gatavs</div>
+  </div>
+
+  <details id="lib">
+   <summary data-i="sum"></summary>
+   <textarea id="customText" data-p="ph"></textarea>
+   <div class="row">
+    <label><input type="checkbox" id="keep"> <span data-i="keep"></span></label>
+    <button class="primary" id="useBtn" data-i="use"></button>
+    <span class="message" id="libMsg"></span>
+   </div>
+   <div class="small" data-i="small"></div>
+  </details>
+ </section>
+
+ <div class="footer">
+  <div data-i="foot_tip"></div>
+  <div data-i="foot_credit" style="margin-top: 6px"></div>
+ </div>
+</main>
+<div class="overlay" id="overlay">
+ <div class="modal">
+  <div class="trophy" id="trophy">🏆</div>
+  <h2 id="resultTitle">Lieliski!</h2>
+  <p id="resultText">Tu paveici lielisku darbu!</p>
+  <div class="result">
+   <div><strong id="finalWpm">0</strong><span data-i="u_wpm"></span></div>
+   <div><strong id="finalAcc">100%</strong><span data-i="u_acc"></span></div>
+   <div><strong id="finalStars">0 ⭐</strong><span data-i="u_stars"></span></div>
+  </div>
+  <button class="primary" id="againBtn" data-i="again"></button>
+ </div>
+</div>
+<script>
+(() => {
+const $=id=>document.getElementById(id);
+const store={get(k,d){try{const v=JSON.parse(localStorage.getItem(k));return v==null?d:v}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+const WORDS_LV={
+ easy:"māja suns kaķis saule mamma tētis bumba koks zivs ola lapa upe sniegs lācis pele roze siers ūdens rīts mīļš putns mākonis bērns galds krēsls gulta logs durvis zīmulis burts skola klase lelle auto kuģis laiva ceļš tilts lauks pļava egle priede bērzs ozols liepa ābols plūme ķirsis oga burkāns sīpols gurķis tomāts maize piens sviests medus cukurs sāls zupa kūka tēja sula vista gailis pīle zoss govs zirgs cūka aita kaza zaķis lapsa vilks ezis briedis stārķis bite muša ods skudra varde sēne zieds zāle akmens kalns jūra vējš lietus ledus auksts silts liels mazs labs jauks skaists ātrs lēns jauns vecs balts melns sarkans zils zaļš dzeltens brūns roka kāja acs galva deguns mute auss zobs mati skriet lēkt dziedāt dejot spēlēt gulēt viens divi trīs četri pieci seši opis oma māsa brālis diena nakts mēness uguns dārzs puķe".split(" "),
+ normal:"zaķītis pasaka princese burvis draugs mežs zvaigzne varavīksne pūķis pils brīnums ezers tauriņš dziesma rudens ziema vasara pavasaris smaidīt princis karalis karaliene ragana rūķis bruņinieks zobens vairogs dārgumi atslēga noslēpums strauts ūdenskritums pagalms saulriets saullēkts mēnesnīca sniegpārsla sniegavīrs ragavas dāvana svece mājiņa bibliotēka skolotāja skolnieks burtnīca pildspalva grāmata dzejolis stāsts valoda latviešu Latvija Rīga Daugava kaķēns kucēns putniņš vāvere bruņurupucis zemenes avenes dzērvenes upenes pīlādzis kļava rudzupuķe pienene margrietiņa zvaigznīte mākonītis pērkons zibens vētra migla rasa gudrs laimīgs priecīgs skumjš draudzība mīlestība prieks smiekli sapnis mazulis vectēvs vecmāmiņa kaimiņš traktors velosipēds autobuss ceļojums pludmale vilnis zivtiņa kapteinis dārgakmens gredzens peldēt stāstīt skraidīt meklēt atrast palīdzēt mācīties".split(" "),
+ hard:"brīnumains piedzīvojums neparasts sudrabains noslēpumains drosmīgais burvestība varavīksnains apburošs čukstēšana saulgrieži pasakuvalsts brīnišķīgs mirdzošs burvīgs apbrīnojams neticams mežonīgs gaišzaļš svētdiena pirmdiena otrdiena trešdiena ceturtdiena piektdiena sestdiena janvāris februāris aprīlis septembris oktobris novembris decembris pārsteigums apsveikums ciemiņš krāsains spīdošs šūpoties čukstēt čivināt žirafe ķengurs čūska žagata ģimene ķemme ļoti ņaudēt ēdamkarote tautasdziesma dzimtene zvaigžņots sniegpārslas ziemassvētki".split(" ")
+};
+const STORIES_LV=[
+"Reiz sensenos laikos mazā meža namiņā dzīvoja drosmīgs zaķēns vārdā Poga.",
+"Kādu rītu Poga atrada zelta atslēdziņu un nolēma meklēt noslēpumaino pili.",
+"Pa ceļam viņš satika gudru pūci, kura zināja visas meža takas.",
+"Pie upes zaķēns palīdzēja mazai zivtiņai atrast ceļu uz mājām.",
+"Kad uzspīdēja mēness, debesis piepildīja spožas un maigas zvaigznes.",
+"Un tā draugi kopā devās pretī jaunam, brīnišķīgam piedzīvojumam.",
+"Rudenī lapas krīt zemē kā zelta naudiņas, un ezis meklē siltu miega vietu.",
+"Mazais tauriņš ielidoja ziedošā pļavā un sasveicinājās ar visām puķēm.",
+"Ziemā sniegs klāj māju jumtus, un bērni steidzas ar ragaviņām uz kalniņu.",
+"Vecmāmiņa cepa smaržīgu maizi, un visa māja smaržoja pēc maizes un medus.",
+"Pavasarī putni atgriežas no siltajām zemēm un priecīgi čivina rīta saulē.",
+"Mazais lācēns ilgi meklēja medu, bet beidzot atrada pilnu podu zem vecā ozola.",
+"Vasarā mēs peldamies ezerā, lasām zemenes un vakaros skatāmies zvaigznēs.",
+"Rūķītis klusi paslēpās aiz akmens un vēroja, kā uz meža takas lēkā vāvere.",
+"Princese vēlējās izlasīt visas pasaules pasakas, tāpēc katru dienu devās uz bibliotēku.",
+"Pūķis izrādījās ļoti laipns, un viņš mīļi uzaicināja visus ciemiņus uz tēju.",
+"Zvejnieks izmeta tīklu jūrā, un tajā iepeldēja mazs, spīdošs zelta zivtiņš.",
+"Skolā mēs mācāmies rakstīt burtus, un katrs jauns vārds ir kā mazs dārgums.",
+"Upes krastā aug kupli kārkli, un vakaros tur dzied lakstīgalas.",
+"Maza pele aiznesa graudiņu savam brālim, un abi priecīgi to apēda."
+];
+const WORDS_EN={
+ easy:"cat dog sun moon star tree book home milk bread apple water fish bird frog duck cow pig horse sheep hen egg cake rain snow wind cloud river lake sea sand rock hill road bridge boat ship car bus train bike ball doll toy kite game song dance run jump walk sit sleep eat drink read write draw sing play smile red blue green yellow black white brown pink big small tall short fast slow hot cold happy sad kind good new old one two three four five six seven eight nine ten mom dad sister brother friend baby hand foot head eye nose mouth ear hair door window table chair bed lamp spoon cup".split(" "),
+ normal:"rabbit turtle monkey tiger lion elephant giraffe zebra squirrel hedgehog butterfly flower garden forest meadow mountain island ocean beach rainbow thunder lightning storm winter summer spring autumn morning evening night holiday birthday present candle picture pencil paper school teacher student library notebook letter story poem princess prince dragon castle knight sword treasure magic wizard fairy secret journey adventure friendship family grandma grandpa neighbor kitchen bedroom breakfast dinner chocolate strawberry banana orange carrot potato tomato cucumber sandwich cookie yogurt popcorn".split(" "),
+ hard:"wonderful beautiful mysterious enormous fantastic delicious dangerous important different favorite excellent amazing brilliant sparkling shimmering whispering adventurous imagination courageous friendly chimney umbrella dinosaur crocodile kangaroo hippopotamus rhinoceros caterpillar telescope mountains thousand Wednesday Thursday Saturday February September November December knowledge neighborhood playground wheelbarrow scarecrow pumpkin enchanted extraordinary celebration".split(" ")
+};
+const STORIES_EN=[
+"Once upon a time a brave little rabbit lived in a cozy house in the forest.",
+"One morning the rabbit found a golden key and decided to search for the secret castle.",
+"On the way he met a wise old owl who knew every path in the woods.",
+"By the river the rabbit helped a tiny fish find its way home.",
+"When the moon came out, the sky filled with bright and gentle stars.",
+"And so the friends set off together on a wonderful new adventure.",
+"In autumn the leaves fall like golden coins, and the hedgehog looks for a warm place to sleep.",
+"The little butterfly flew into a blooming meadow and said hello to every flower.",
+"In winter the snow covers the roofs, and the children run to the hill with their sleds.",
+"Grandma baked fresh bread, and the whole house smelled of honey and warm butter.",
+"In spring the birds come back from warm countries and sing happily in the morning sun.",
+"The little bear searched for honey for a long time and finally found a full pot under the old oak.",
+"In summer we swim in the lake, pick strawberries and watch the stars at night.",
+"The dragon turned out to be very kind, and he invited all the guests to tea."
+];
+const WORDS={lv:WORDS_LV,en:WORDS_EN},STORIES={lv:STORIES_LV,en:STORIES_EN};
+let lang=store.get("bb_lang","lv");if(!WORDS[lang])lang="lv";
+const I18N={
+lv:{title:"Burtiņu Burvis",sub:"Raksti, mācies un krāj zvaigznes!",m_words:"Īsie vārdi",m_story:"Pasaku teikumi",m_custom:"📚 Mans teksts",d30:"30 sekundes",d60:"60 sekundes",d0:"Bez taimera (bezgalīgi)",l_easy:"Vieglāk",l_normal:"Vidēji",l_hard:"Mazliet grūtāk",start:"Sākt spēli ▶",finish:"Pabeigt ■",s_time:"Laiks",s_speed:"Ātrums",s_acc:"Pareizi",s_stars:"Zvaigznes",hint:"Nospied <b>Sākt spēli</b> un sāc rakstīt. Vari klikšķināt uz teksta laukuma.",sum:"📚 Mans teksts — ielīmē pasaku, dzejoli vai skolas tekstu",ph:"Ielīmē šeit savu tekstu (pasaku, dzejoli, skolas uzdevumu)…",keep:"Saglabāt rindiņas (dzejoļiem)",use:"Sākt ar šo tekstu ▶",small:"Ielīmē tekstu, un spied „Sākt ar šo tekstu”. Ja tekstā ir dzejolis, ieslēdz „Saglabāt rindiņas” — tad rindiņas beigās jāspiež Enter. Pēdiņas un domuzīmes tiek vienkāršotas, lai bērnam būtu viegli rakstīt.",u_wpm:"vārdi/min",u_acc:"precizitāte",u_stars:"zvaigznes",again:"Spēlēt vēlreiz ✨",foot_tip:"Padoms: nesteidzies — sākumā svarīgākais ir rakstīt pareizi. ✨",foot_credit:"2026",theme:"🪄 Krāsas",snd_on:"🔊 Skaņa",snd_off:"🔇 Bez skaņas",
+ lbl_words:"Ieraksti redzamos vārdus",lbl_story:"Pārraksti pasakas tekstu",lbl_custom:"Pārraksti savu tekstu",lbl_enter:" (rindiņas beigās spied Enter)",lbl_my:"Mans teksts",ask_text:"Vispirms ielīmē savu tekstu zemāk 👇",no_text:"Nav teksta, ko rakstīt.",ready:"Gatavs",go:"Raksti!",done:"Pabeigts",msg_go:"Tu to vari! Raksti uzmanīgi. 🌈",msg_done:"Spēle pabeigta — malacis!",r_text:"Teksts pabeigts! 🎉",r_great:"Fantastiski!",r_good:"Labs darbs!",t_great:"Tu esi īsts burtu burvis! Turpini tā!",t_good:"Trenējies vēl mazliet, un tev izdosies vēl labāk!",wand:"Burvju nūjiņa nomainīja krāsas: ",names:["Nakts","Mežs","Vakars","Jūra","Kakao","Ogle","Ziedi","Debesis","Laima","Ceriņi","Saulriets","Tirkīzs"]},
+en:{title:"Letter Wizard",sub:"Type, learn and collect stars!",m_words:"Short words",m_story:"Fairytale sentences",m_custom:"📚 My text",d30:"30 seconds",d60:"60 seconds",d0:"No timer (endless)",l_easy:"Easier",l_normal:"Medium",l_hard:"A little harder",start:"Start game ▶",finish:"Finish ■",s_time:"Time",s_speed:"Speed",s_acc:"Correct",s_stars:"Stars",hint:"Press <b>Start game</b> and begin typing. You can also click the text area.",sum:"📚 My text — paste a fairytale, a poem or a school text",ph:"Paste your own text here (a fairytale, a poem, a school task)…",keep:"Keep line breaks (for poems)",use:"Start with this text ▶",small:"Paste a text and press “Start with this text”. For a poem, turn on “Keep line breaks” — then press Enter at the end of each line. Quotes and dashes are simplified so they are easy for a child to type.",u_wpm:"words/min",u_acc:"accuracy",u_stars:"stars",again:"Play again ✨",foot_tip:"Tip: take your time — typing correctly matters most at the start. ✨",foot_credit:"2026",theme:"🪄 Colours",snd_on:"🔊 Sound",snd_off:"🔇 Sound off",
+ lbl_words:"Type the words you see",lbl_story:"Copy the story text",lbl_custom:"Copy your own text",lbl_enter:" (press Enter at the end of each line)",lbl_my:"My text",ask_text:"First paste your own text below 👇",no_text:"There is no text to type.",ready:"Ready",go:"Type!",done:"Finished",msg_go:"You can do it! Type carefully. 🌈",msg_done:"Game over — well done!",r_text:"Text finished! 🎉",r_great:"Fantastic!",r_good:"Good job!",t_great:"You are a true letter wizard! Keep it up!",t_good:"Practise a little more and you'll do even better!",wand:"The magic wand changed the colours: ",names:["Night","Forest","Dusk","Sea","Cocoa","Ember","Blossom","Sky","Lime","Lilac","Sunset","Turquoise"]}};
+const t=k=>I18N[lang][k];
+function applyLang(){document.documentElement.lang=lang;document.title=t("title")+(lang==="en"?" — typing game":" — rakstīšanas spēle");document.querySelectorAll("[data-i]").forEach(e=>e.innerHTML=t(e.dataset.i));document.querySelectorAll("[data-p]").forEach(e=>e.placeholder=t(e.dataset.p));$("themeBtn").title=t("wand").replace(/: $/,"");showSound()}
+let streak=0,best=0,src=null,target="",prev=0,started=false,finished=false,startAt=0,endAt=0,dur=30,timer=null,keys=0,keysOk=0,doneOk=0,doneLen=0,cur=0,finAt=0,stars=store.get("bb_stars",0),audioCtx=null;
+let muted=store.get("bb_mute",false),theme=store.get("bb_theme",0);
+function sound(freq=660,duration=.12,type="sine",volume=.045){if(muted)return;try{audioCtx=audioCtx||new(window.AudioContext||window.webkitAudioContext)();const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type=type;o.frequency.value=freq;g.gain.setValueAtTime(volume,audioCtx.currentTime);g.gain.exponentialRampToValueAtTime(.001,audioCtx.currentTime+duration);o.connect(g);g.connect(audioCtx.destination);o.start();o.stop(audioCtx.currentTime+duration)}catch(e){}}
+function fanfare(){sound(523,.16);setTimeout(()=>sound(659,.16),130);setTimeout(()=>sound(784,.24),260);setTimeout(()=>sound(1047,.35),430)}
+function sparkles(n=22){const icons=["✨","⭐","🌟","💫","🎉"];for(let i=0;i<n;i++){const s=document.createElement("span");s.className="spark";s.textContent=icons[Math.floor(Math.random()*icons.length)];s.style.left=(10+Math.random()*80)+"vw";s.style.top=(25+Math.random()*55)+"vh";s.style.setProperty("--dx",(Math.random()*220-110)+"px");s.style.setProperty("--dy",(-70-Math.random()*180)+"px");document.body.appendChild(s);setTimeout(()=>s.remove(),1250)}}
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+// No repeats inside one game; items from the last `keep` games are avoided while enough other items remain.
+function picker(key,pool,keep){pool=[...new Set(pool)];let h=store.get(key,[]);if(!Array.isArray(h))h=[];h.unshift([]);h=h.slice(0,keep+1);let avoid=new Set(),bag=[];
+ for(let g=keep;g>=0;g--){avoid=new Set(h.slice(1,1+g).flat());if(pool.filter(w=>!avoid.has(w)).length>=pool.length/2)break}
+ const fill=()=>{bag=shuffle(pool.filter(w=>!avoid.has(w)));avoid=new Set();if(!bag.length)bag=shuffle(pool)};fill();
+ return{next(){if(!bag.length)fill();const w=bag.pop();h[0].push(w);return w},save(){store.set(key,h)}}}
+// ---------- own text: cleaning, chunking, importing ----------
+function prep(raw,keep){let t=String(raw).normalize("NFC").replace(/[\u200b\u00ad\ufeff\r]/g,"").replace(/[„“”«»‟]/g,'"').replace(/[‚‘’‹›]/g,"'").replace(/[–—−]/g,"-").replace(/…/g,"...").replace(/\[\d+\]/g,"").replace(/[^\S\n]+/g," ");
+ return t.split("\n").map(s=>s.trim()).filter(Boolean).join(keep?"\n":" ").slice(0,60000)}
+function chunk(text,keep,lim){const units=keep?text.split("\n"):(text.match(/[^.!?]+(?:[.!?]+["')]*|$)\s*/g)||[text]).map(s=>s.trim()).filter(Boolean),pieces=[],out=[],sep=keep?"\n":" ";
+ for(const u of units){if(u.length<=lim*1.6){pieces.push(u);continue}let c="";for(const w of u.split(" ")){if(c&&(c+" "+w).length>lim){pieces.push(c);c=w}else c=c?c+" "+w:w}if(c)pieces.push(c)}
+ let c="";for(const p of pieces){if(c&&(c+sep+p).length>lim){out.push(c);c=p}else c=c?c+sep+p:p}if(c)out.push(c);return out}
+$("useBtn").onclick=()=>{$("mode").value="custom";start()};
+// ---------- colour themes (all dark and soft, easy on the eyes) & sound switch ----------
+const TK="bg g1 g2 panel panel2 c1 c2 field ink muted gold mint blue bad pend foot m1".split(" ");
+const THEMES=[
+["Nakts","#10172a #293a65 #422d62 #19243d #202e4b #1c2945 #17223a #101a30 #f4f6ff #aab6d3 #ffd166 #75e6c1 #8ab4ff #ff6b7d #71809f #8290ad #27385c"],
+["Mežs","#0f1d1a #1f4a40 #2b3b2a #162b26 #1d3731 #19302a #14261f #0d1a17 #eef7f1 #a5c2b6 #e8c872 #8fe3b8 #8bc7d9 #ff7a7a #6b8a7e #7d9a8d #234238"],
+["Vakars","#1c1424 #4a2a45 #5a3524 #2a1d35 #33243f #2d2038 #241a2d #1a1222 #f7efee #c4b0bf #f2c078 #8fd9bf #a9b4f0 #ff7d8d #85738a #9a8799 #42304f"],
+["Jūra","#0c1a24 #134057 #1d3550 #132a38 #1a3646 #162f3f #11242f #0a1620 #eef6fa #9fbccb #f0cd7a #6fdcc9 #7fb8f0 #ff7b86 #668396 #7a95a5 #1f4258"],
+["Kakao","#1b1612 #43301f #3a2a3a #2a2119 #352a20 #2d241b #231c15 #17120e #f6efe6 #bfae9b #f0c27a #9ad9b0 #9db8e0 #ff8070 #84735f #978671 #433325"],
+["Ogle","#141414 #3a2a1a #2a2a3a #211e1c #2c2825 #26221f #1d1a18 #131110 #f5f0ea #bcb2a6 #ffb86b #a6e3a1 #89b4fa #ff7f8e #7d746b #918779 #3a322b"],
+["Ziedi","#1e1220 #5a2a4e #3a2a5a #2c1b2f #382340 #301f35 #261829 #1a0f1c #fbeff5 #cdb0c3 #ff9ec0 #b6f0d0 #c3a8ff #ff7a85 #8a6f86 #a28699 #4a2d52"],
+["Debesis","#16233a #2f5f8f #3d4f8f #1f3252 #29406a #243a5e #1b2d4a #13203a #f2f7ff #aec4e0 #ffd479 #7ee8d0 #8fc5ff #ff7b8a #6f87a8 #839bb9 #2d4a78"],
+["Laima","#17200f #3c5a1f #2a4a3a #212f17 #2b3d1f #263620 #1e2b16 #131b0c #f3f8e9 #b6c79f #f2d46b #b4f07a #8fd6e8 #ff8070 #77885f #8a9b72 #34492a"],
+["Ceriņi","#1a1330 #4b2f8a #2f3f8a #271d47 #32265a #2c2150 #231a40 #150f28 #f4f0ff #bcb0e0 #ffd07a #7fe6cf #a5b4ff #ff7f9a #7a6fa6 #9188bb #3d2f70"],
+["Saulriets","#231419 #6a2f2a #4a2a5a #33202a #402a35 #3a2430 #2c1b24 #1d1015 #fff0ea #d4b3aa #ffc27a #9ce6b8 #f7a8b8 #ff6f7d #8f6f72 #a58487 #4f2f3a"],
+["Tirkīzs","#0d1f21 #14585a #1f3f5a #15302f #1c3c3b #183634 #122b2a #0a1819 #eefafa #9fc8c6 #ffd27a #7df0d8 #7fd0f0 #ff7f86 #62908e #76a3a1 #1f4a48"]
+].map(([n,v])=>[n,v.split(" ")]);
+function applyTheme(){const r=document.documentElement.style;THEMES[theme][1].forEach((v,i)=>r.setProperty("--"+TK[i],v));store.set("bb_theme",theme)}
+function showSound(){$("soundBtn").textContent=muted?t("snd_off"):t("snd_on");$("soundBtn").setAttribute("aria-pressed",muted)}
+$("themeBtn").onclick=()=>{theme=(theme+1)%THEMES.length;applyTheme();sparkles(8);sound(988,.12);sound(1319,.2);$("message").textContent=t("wand")+t("names")[theme]+" ✨"};
+$("soundBtn").onclick=()=>{muted=!muted;store.set("bb_mute",muted);showSound();if(!muted)sound(660,.12)};
+if(!THEMES[theme])theme=0;applyTheme();showSound();
+// ---------- game ----------
+function confetti(n=70){const cols=["var(--gold)","var(--mint)","var(--blue)","var(--bad)","#ff8fab","#ffffff"];for(let i=0;i<n;i++){const c=document.createElement("i"),z=6+Math.random()*7;c.className="confetti";c.style.cssText=`left:${Math.random()*100}vw;width:${z}px;height:${z*1.6}px;background:${cols[i%cols.length]};--dx:${Math.random()*160-80}px;--rot:${Math.random()*720-360}deg;animation-duration:${2.2+Math.random()*1.8}s;animation-delay:${Math.random()*.7}s`;document.body.appendChild(c);setTimeout(()=>c.remove(),5000)}}
+function dot(el){const r=el.getBoundingClientRect(),d=document.createElement("i"),cols=["--gold","--mint","--blue","--bad"];d.className="dot";d.textContent=["✦","✧","•"][keys%3];d.style.color=`var(${cols[keys%4]})`;d.style.left=(r.left+r.width/2)+"px";d.style.top=r.top+"px";d.style.setProperty("--dx",(Math.random()*30-15)+"px");document.body.appendChild(d);setTimeout(()=>d.remove(),800)}
+function countUp(id,to,suf="",ms=900){const el=$(id),t0=performance.now();(function f(n){const k=Math.min(1,(n-t0)/ms);el.textContent=Math.round(to*(1-Math.pow(1-k,3)))+suf;if(k<1)requestAnimationFrame(f)})(t0)}
+function combo(grew){const c=$("combo");c.textContent=streak>=5?"🔥 ×"+streak:"";c.classList.toggle("show",streak>=5);$("promptWrap").classList.toggle("hot",streak>=10);
+ if(grew&&streak&&streak%10===0){sparkles(6);sound(988,.1);setTimeout(()=>sound(1319,.16),90);c.classList.remove("bump");void c.offsetWidth;c.classList.add("bump")}}
+function escapeHtml(c){return c==="&"?"&amp;":c==="<"?"&lt;":c===">"?"&gt;":c==='"'?"&quot;":c==="'"?"&#39;":c}
+function render(v=$("typing").value,fx=false){let o="";for(let i=0;i<target.length;i++){const c=target[i];let cls=i<v.length?(v[i]===c?"correct":"wrong"):i===v.length?"current":"pending";if(fx&&i===v.length-1)cls+=cls==="correct"?" pop":" shake";o+=c==="\n"?`<span class="${cls}">↵</span>\n`:`<span class="${cls}">${escapeHtml(c)}</span>`}
+ $("prompt").innerHTML=o;if(fx&&v.length&&v[v.length-1]===target[v.length-1]){const el=$("prompt").children[v.length-1];if(el)dot(el)}}
+function updateStats() {
+ const elapsed = started ? Date.now() - startAt : 0;
+ const correctCharacters = doneOk + cur;
+ const wpm = started
+  ? Math.round(correctCharacters / 5 / (Math.max(elapsed, 2000) / 60000))
+  : 0;
+ const accuracy = keys ? Math.round((keysOk / keys) * 100) : 100;
+
+ $("wpm").textContent = wpm;
+ $("accuracy").textContent = accuracy + "%";
+ $("stars").textContent = (finished ? stars : stars + Math.floor(correctCharacters / 18)) + " ⭐";
+ $("time").textContent = dur
+  ? started
+   ? Math.max(0, Math.ceil((endAt - Date.now()) / 1000))
+   : finished ? 0 : dur
+  : "∞";
+
+ const progress = !target
+  ? 0
+  : dur
+    ? (started ? elapsed / (dur * 1000) : 0)
+    : src && src.total
+     ? (doneLen + prev) / src.total
+     : prev / target.length;
+ $("progress").style.width = Math.min(100, progress * 100) + "%";
+}
+function start() {
+ clearInterval(timer);
+ const mode = $("mode").value;
+ const level = $("level").value;
+ const keepLineBreaks = $("keep").checked;
+ dur = Number($("duration").value);
+ src = null;
+
+ if (mode === "custom") {
+  const text = prep($("customText").value, keepLineBreaks);
+  if (text) {
+   const passages = chunk(text, keepLineBreaks, { easy: 110, normal: 190, hard: 300 }[level]);
+   let index = 0;
+   src = {
+    total: text.length,
+    next: () => index < passages.length ? passages[index++] : null,
+    label: t("lbl_custom") + (keepLineBreaks ? t("lbl_enter") : "")
+   };
+  }
+ } else if (mode === "story") {
+  const passagePicker = picker("bb_s_" + lang + "_" + level, STORIES[lang], 2);
+  const sentenceCount = { easy: 1, normal: 2, hard: 3 }[level];
+  src = {
+   next() {
+    const passage = Array.from({ length: sentenceCount }, () => passagePicker.next()).join(" ");
+    passagePicker.save();
+    return passage;
+   },
+   label: t("lbl_story")
+  };
+ } else {
+  const wordPicker = picker("bb_w_" + lang + "_" + level, WORDS[lang][level], 4);
+  const wordCount = { easy: 16, normal: 14, hard: 10 }[level];
+  src = {
+   next() {
+    const passage = Array.from({ length: wordCount }, () => wordPicker.next()).join(" ");
+    wordPicker.save();
+    return passage;
+   },
+   label: t("lbl_words")
+  };
+ }
+
+ started = false;
+ finished = false;
+ keys = keysOk = doneOk = doneLen = cur = prev = streak = best = 0;
+ combo(false);
+ startAt = endAt = 0;
+ $("typing").value = "";
+ $("finishBtn").disabled = true;
+ $("overlay").classList.remove("show");
+
+ if (!src) {
+  target = "";
+  $("prompt").textContent = t("ask_text");
+  $("promptLabel").textContent = t("lbl_my");
+  $("lib").open = true;
+  $("status").textContent = t("ready");
+  $("message").textContent = t("no_text");
+  updateStats();
+  return;
+ }
+
+ target = src.next();
+ $("message").textContent = t("msg_go");
+ $("status").textContent = t("go");
+ $("promptLabel").textContent = src.label;
+ render();
+ updateStats();
+ $("typing").focus();
+}
+
+function begin() {
+ started = true;
+ startAt = Date.now();
+ endAt = startAt + dur * 1000;
+ $("finishBtn").disabled = false;
+ timer = setInterval(() => {
+  if (dur && Date.now() >= endAt) finish("time");
+  else updateStats();
+ }, 200);
+}
+function finish(reason) {
+ if (finished || !started) return;
+
+ const now = Math.min(Date.now(), dur ? endAt : Infinity);
+ const correctCharacters = doneOk + cur;
+ const accuracy = keys ? Math.round((keysOk / keys) * 100) : 100;
+ const wpm = Math.round(correctCharacters / 5 / (Math.max(now - startAt, 1000) / 60000));
+ const wholeTextFinished = reason === "done" && src.total;
+ const earned = Math.floor(correctCharacters / 18)
+  + (accuracy >= 95 && keys ? 2 : 0)
+  + (wholeTextFinished ? 3 : 0);
+
+ finished = true;
+ finAt = Date.now();
+ clearInterval(timer);
+ $("typing").blur();
+ stars += earned;
+ store.set("bb_stars", stars);
+ started = false;
+ $("finishBtn").disabled = true;
+ updateStats();
+
+ countUp("finalWpm", wpm);
+ countUp("finalAcc", accuracy, "%");
+ countUp("finalStars", earned, " ⭐", 1200);
+ $("resultTitle").textContent = wholeTextFinished
+  ? t("r_text")
+  : accuracy >= 90 ? t("r_great") : t("r_good");
+ $("resultText").textContent = accuracy >= 90 ? t("t_great") : t("t_good");
+ $("trophy").textContent = accuracy >= 90 ? "🏆" : "🌟";
+ $("overlay").classList.add("show");
+ $("status").textContent = t("done");
+ $("message").textContent = t("msg_done");
+ fanfare();
+ sparkles(35);
+ confetti(80);
+ setTimeout(() => {
+  sparkles(20);
+  confetti(40);
+ }, 900);
+}
+
+function nextPassage() {
+ // The timer and input event can become ready in the same event-loop turn.
+ // Check the deadline here so finishing a passage after time expires is not
+ // incorrectly treated as completing the full custom text.
+ if (started && dur && Date.now() >= endAt) {
+  finish("time");
+  return;
+ }
+
+ doneOk += cur;
+ doneLen += target.length;
+ cur = 0;
+ const next = src.next();
+ if (next == null) {
+  finish("done");
+  return;
+ }
+
+ target = next;
+ $("typing").value = "";
+ prev = 0;
+ sound(880, .1);
+ sparkles(6);
+ const wrap = $("promptWrap");
+ wrap.classList.remove("flash");
+ void wrap.offsetWidth;
+ wrap.classList.add("flash");
+ render("");
+ updateStats();
+}
+
+function handle() {
+ if (finished || !target) return;
+
+ // A delayed input event must not score keystrokes after the countdown ends.
+ if (started && dur && Date.now() >= endAt) {
+  finish("time");
+  return;
+ }
+
+ const textarea = $("typing");
+ let value = textarea.value;
+ if (value.length > target.length) {
+  value = value.slice(0, target.length);
+  textarea.value = value;
+ }
+
+ if (value.length && !started) begin();
+
+ let hasWrongCharacter = false;
+ const grew = value.length > prev;
+ for (let i = prev; i < value.length; i++) {
+  keys++;
+  if (value[i] === target[i]) {
+   keysOk++;
+   streak++;
+   best = Math.max(best, streak);
+  } else {
+   hasWrongCharacter = true;
+   streak = 0;
+  }
+ }
+
+ if (value.length > prev) {
+  if (hasWrongCharacter) sound(170, .07, "triangle", .018);
+  else if (value.length % 4 === 0) sound(740, .045, "sine", .018);
+ }
+
+ prev = value.length;
+ cur = 0;
+ for (let i = 0; i < value.length; i++) {
+  if (value[i] === target[i]) cur++;
+ }
+ render(value, grew);
+ combo(grew);
+ updateStats();
+ if (value.length >= target.length) nextPassage();
+}
+const ta=$("typing");
+ta.addEventListener("input",e=>{if(!e.isComposing)handle()});ta.addEventListener("compositionend",handle); // dead keys (ā, č, š …) arrive via composition
+ta.addEventListener("paste",e=>e.preventDefault());ta.addEventListener("drop",e=>e.preventDefault());
+ta.addEventListener("keydown",e=>{if(/^(Arrow|Home$|End$|Page)/.test(e.key))e.preventDefault()});
+const caret=()=>{const n=ta.value.length;ta.setSelectionRange(n,n)};ta.addEventListener("click",caret);ta.addEventListener("select",caret);
+$("startBtn").addEventListener("click",start);$("resetBtn").addEventListener("click",start);$("againBtn").addEventListener("click",start);$("finishBtn").addEventListener("click",()=>finish("manual"));
+["mode","level","duration","keep","lang"].forEach(id=>$(id).addEventListener("change",()=>{if(id==="lang"){lang=$("lang").value;store.set("bb_lang",lang);applyLang()}if(id!=="keep"||$("mode").value==="custom")start()}));
+$("promptWrap").addEventListener("click",()=>{if(target)ta.focus()});
+document.addEventListener("keydown",e=>{if(e.key==="Escape")$("overlay").classList.remove("show");if(e.key==="Enter"&&finished&&Date.now()-finAt>800&&!/INPUT|TEXTAREA|SELECT|BUTTON/.test(document.activeElement.tagName))start()});
+$("lang").value=lang;applyLang();
+start();
+})();
+</script>
+</body>
+</html>
