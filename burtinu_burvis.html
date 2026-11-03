@@ -49,7 +49,7 @@ header {
  align-items: center;
  justify-content: space-between;
  gap: 12px;
- margin-bottom: 20px;
+ margin-bottom: clamp(64px, 12vh, 110px); /* open sky strip: the sun / moon travel here (sky.js) */
  flex-wrap: wrap;
 }
 
@@ -58,7 +58,9 @@ header {
 h1 { font-size: clamp(22px, 4vw, 32px); margin: 0; letter-spacing: .2px; }
 .sub { color: var(--muted); font-size: 13px; margin-top: 3px; }
 
-.tools{display:flex;gap:9px;align-items:center;flex-wrap:wrap;justify-content:flex-end;margin-left:auto}
+.tools{display:flex;gap:9px;align-items:center;flex-wrap:wrap;justify-content:flex-end;margin-left:auto;align-self:flex-start}
+/* narrower screens (when title and buttons no longer fit side by side): the buttons stay on the top row like on the home page, the title goes below */
+@media(max-width:960px){header .tools{order:-1;width:100%}}
 .tool{display:inline-flex;align-items:center;min-height:42px;padding:9px 14px;border:1px solid #ffffff24;border-radius:999px;background:#ffffff0c;color:var(--ink);font-family:ui-rounded,"Trebuchet MS",system-ui,sans-serif;font-size:.9rem;font-weight:750;line-height:1.2;text-decoration:none;cursor:pointer;backdrop-filter:blur(12px)}
 .tool:hover{border-color:#ffffff70;background:#ffffff18}
 @media(max-width:640px){.tools{gap:7px}.tool{padding-inline:11px}}
@@ -147,7 +149,7 @@ summary{cursor:pointer;font-weight:800;color:var(--gold)}
 .modal .trophy{font-size:58px}.modal h2{font-size:30px;margin:8px 0}.modal p{color:var(--muted);line-height:1.5}
 .result{display:flex;justify-content:center;gap:26px;margin:18px 0}.result strong{display:block;font-size:27px;color:var(--gold)}.result span{font-size:12px;color:var(--muted)}
 .spark{position:fixed;pointer-events:none;z-index:9;font-size:20px;animation:fly 1.2s ease-out forwards}
-.cursor-spark{position:fixed;pointer-events:none;z-index:9;font-size:var(--size);color:var(--gold);text-shadow:0 0 12px currentColor;animation:cursor-fly .8s ease-out forwards}
+.cursor-spark{position:fixed;pointer-events:none;z-index:9;font-size:var(--size);font-weight:800;color:var(--gold);text-shadow:0 0 12px currentColor;animation:cursor-fly .8s ease-out forwards}
 @keyframes cursor-fly{0%{transform:translate(-50%,-50%) scale(.2);opacity:0}20%{opacity:1}100%{transform:translate(calc(-50% + var(--dx)),-36px) scale(1.3) rotate(90deg);opacity:0}}
 @keyframes fly{0%{transform:translate(0,0) scale(.5) rotate(0);opacity:1}100%{transform:translate(var(--dx),var(--dy)) scale(1.4) rotate(160deg);opacity:0}}
 @media (max-width: 600px) {
@@ -189,6 +191,7 @@ summary{cursor:pointer;font-weight:800;color:var(--gold)}
 @keyframes fall{0%{transform:translate(0,0) rotate(0);opacity:1}100%{transform:translate(var(--dx),108vh) rotate(var(--rot));opacity:.9}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}.confetti,.spark,.dot,.cursor-spark{display:none}}
 </style>
+<script src="./sky.js" defer></script>
 </head>
 <body>
 <main class="app">
@@ -202,7 +205,9 @@ summary{cursor:pointer;font-weight:800;color:var(--gold)}
   </div>
   <div class="tools">
    <a class="tool" href="./index.html" data-i="home"></a>
-   <button class="tool" id="themeBtn" type="button" data-i="theme"></button>
+   <button class="tool" id="themeBtn" type="button" data-burst="letters" data-i="theme"></button>
+   <button class="tool" id="skyBtn" type="button" data-sky-btn>🌙 Nakts</button>
+   <button class="tool" id="musicBtn" type="button" data-music-btn aria-pressed="true">🎵 Mūzika</button>
    <button class="tool" id="soundBtn" type="button" aria-pressed="false">🔊 Skaņa</button>
    <button class="tool" id="lang" type="button" data-i="lang_btn" aria-label="Switch language">🌐 LV</button>
   </div>
@@ -385,8 +390,8 @@ const THEMES=[
 ].map(([n,v])=>[n,v.split(" ")]);
 function applyTheme(){const r=document.documentElement.style;THEMES[theme][1].forEach((v,i)=>r.setProperty("--"+TK[i],v));store.set("bb_theme",theme)}
 function showSound(){$("soundBtn").textContent=muted?t("snd_off"):t("snd_on");$("soundBtn").setAttribute("aria-pressed",muted)}
-$("themeBtn").onclick=()=>{theme=(theme+1)%THEMES.length;applyTheme();sparkles(8);sound(988,.12);sound(1319,.2);$("message").textContent=t("wand")+t("names")[theme]+" ✨"};
-$("soundBtn").onclick=()=>{muted=!muted;store.set("bb_mute",muted);showSound();if(!muted)sound(660,.12)};
+$("themeBtn").onclick=()=>{theme=(theme+1)%THEMES.length;applyTheme();$("message").textContent=t("wand")+t("names")[theme]+" ✨"};
+$("soundBtn").onclick=()=>{muted=!muted;store.set("bb_mute",muted);showSound()};
 if(!THEMES[theme])theme=0;applyTheme();showSound();
 // ---------- game ----------
 function confetti(n=70){const cols=["var(--gold)","var(--mint)","var(--blue)","var(--bad)","#ff8fab","#ffffff"];for(let i=0;i<n;i++){const c=document.createElement("i"),z=6+Math.random()*7;c.className="confetti";c.style.cssText=`left:${Math.random()*100}vw;width:${z}px;height:${z*1.6}px;background:${cols[i%cols.length]};--dx:${Math.random()*160-80}px;--rot:${Math.random()*720-360}deg;animation-duration:${2.2+Math.random()*1.8}s;animation-delay:${Math.random()*.7}s`;document.body.appendChild(c);setTimeout(()=>c.remove(),5000)}}
@@ -492,7 +497,7 @@ function start() {
  $("promptLabel").textContent = src.label;
  render();
  updateStats();
- $("typing").focus();
+ $("typing").focus({preventScroll:true});   // focus the typing box without scrolling the page (keeps the header in place)
 }
 
 function begin() {
@@ -633,17 +638,19 @@ const caret=()=>{const n=ta.value.length;ta.setSelectionRange(n,n)};ta.addEventL
 $("startBtn").addEventListener("click",start);$("resetBtn").addEventListener("click",start);$("againBtn").addEventListener("click",start);$("finishBtn").addEventListener("click",()=>finish("manual"));
 ["mode","level","duration","keep"].forEach(id=>$(id).addEventListener("change",()=>{if(id!=="keep"||$("mode").value==="custom")start()}));
 $("lang").addEventListener("click",()=>{lang=lang==="lv"?"en":"lv";store.set("bb_lang",lang);applyLang();start()});
-$("promptWrap").addEventListener("click",()=>{if(target)ta.focus()});
+$("promptWrap").addEventListener("click",()=>{if(target)ta.focus({preventScroll:true})});
 document.addEventListener("keydown",e=>{if(e.key==="Escape")$("overlay").classList.remove("show");if(e.key==="Enter"&&finished&&Date.now()-finAt>800&&!/INPUT|TEXTAREA|SELECT|BUTTON/.test(document.activeElement.tagName))start()});
 applyLang();
 start();
 let lastCursorSpark=0;
+// cursor trail: glowing letters of the current language's alphabet
+const CURSOR_LETTERS={lv:"aābcčdeēfgģhiījkķlļmnņoprsštuūvzž",en:"abcdefghijklmnopqrstuvwxyz"};
 addEventListener("pointermove",e=>{
  if(e.pointerType==="touch"||matchMedia("(prefers-reduced-motion: reduce)").matches)return;
  const now=performance.now();if(now-lastCursorSpark<48)return;lastCursorSpark=now;
- const s=document.createElement("span");s.className="cursor-spark";s.textContent=Math.random()>.5?"✦":"✧";
+ const s=document.createElement("span");s.className="cursor-spark";{const abc=[...(CURSOR_LETTERS[lang]||CURSOR_LETTERS.lv)],ch=abc[Math.floor(Math.random()*abc.length)];s.textContent=Math.random()<.3?ch.toUpperCase():ch}
  s.style.left=e.clientX+"px";s.style.top=e.clientY+"px";
- s.style.setProperty("--dx",(Math.random()*30-15)+"px");s.style.setProperty("--size",(10+Math.random()*9)+"px");
+ s.style.setProperty("--dx",(Math.random()*30-15)+"px");s.style.setProperty("--size",(12+Math.random()*9)+"px");
  document.body.appendChild(s);setTimeout(()=>s.remove(),850);
 },{passive:true});
 })();

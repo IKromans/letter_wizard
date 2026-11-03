@@ -31,34 +31,19 @@
         var(--night);
       transition: background .6s ease;
     }
-    body::before, body::after {
+    body::after {
       position: fixed;
-      inset: 0;
       z-index: 0;
       content: "";
       pointer-events: none;
-    }
-    body::before {
-      opacity: .48;
-      background-image:
-        radial-gradient(1px 1px at 12% 18%, #fff 98%, transparent),
-        radial-gradient(2px 2px at 82% 13%, var(--gold) 98%, transparent),
-        radial-gradient(1px 1px at 68% 32%, #fff 98%, transparent),
-        radial-gradient(1px 1px at 23% 55%, var(--mint) 98%, transparent),
-        radial-gradient(2px 2px at 91% 72%, #fff 98%, transparent),
-        radial-gradient(1px 1px at 42% 84%, var(--gold) 98%, transparent);
-      background-size: 290px 260px, 370px 320px, 430px 390px, 330px 410px, 510px 470px, 390px 350px;
-      animation: starDrift 50s linear infinite;
-    }
-    body::after {
       inset: auto -10vw -22rem;
       height: 34rem;
       border-radius: 50%;
       background: radial-gradient(ellipse, color-mix(in srgb, var(--violet), transparent 20%), transparent 70%);
       filter: blur(35px);
     }
-    @keyframes starDrift { to { transform: translateY(-35px); } }
-    .page { position: relative; z-index: 1; width: min(100% - 36px, 1050px); margin: 0 auto; padding: 22px 0 42px; }
+    /* same frame as the games: 1000 px wide, 16 px from the edges, toolbar 26 px from the top (phones: 10 px / 16 px) */
+    .page { position: relative; z-index: 1; width: min(100% - 32px, 1000px); margin: 0 auto; padding: 26px 0 42px; }
     .toolbar { display: flex; justify-content: flex-end; gap: 9px; }
     .tool {
       min-height: 42px;
@@ -75,20 +60,8 @@
     }
     .tool:hover { border-color: #ffffff70; background: #ffffff18; }
     .hero { padding: clamp(42px, 9vh, 92px) 0 40px; text-align: center; }
-    .moon {
-      display: grid;
-      width: 98px;
-      height: 98px;
-      margin: 0 auto 20px;
-      place-items: center;
-      border: 1px solid #fff4c34d;
-      border-radius: 50%;
-      background: radial-gradient(circle at 35% 30%, #fff6cf, #f8d77e 55%, #c39456);
-      box-shadow: 0 0 35px #ffd67b55, 0 0 110px #caaaff25;
-      font-size: 3.2rem;
-      animation: float 4s ease-in-out infinite;
-    }
-    @keyframes float { 50% { transform: translateY(-8px) rotate(4deg); } }
+    /* empty space above the title: the top of the sun / moon path (drawn by sky.js) */
+    .sky-spot { width: 98px; height: 98px; margin: 0 auto 20px; }
     .eyebrow {
       margin: 0 0 9px;
       color: var(--mint);
@@ -192,8 +165,8 @@
       20% { opacity: 1; }
       100% { opacity: 0; transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(1.25) rotate(80deg); }
     }
+    @media (max-width: 600px) { .page { width: calc(100% - 20px); padding-top: 16px; } }
     @media (max-width: 640px) {
-      .page { width: min(100% - 26px, 500px); padding-top: 14px; }
       .hero { padding-top: 48px; }
       .games { grid-template-columns: 1fr; gap: 13px; }
       .game { min-height: 225px; }
@@ -206,15 +179,19 @@
       .spark { display: none; }
     }
   </style>
+  <script src="./sky.js" defer></script>
 </head>
 <body>
   <main class="page">
     <nav class="toolbar" aria-label="Settings">
-      <button class="tool" id="theme" type="button" aria-label="Change colors">🪄 Krāsas</button>
+      <button class="tool" id="theme" type="button" data-burst="stars" aria-label="Change colors">🪄 Krāsas</button>
+      <button class="tool" id="skyBtn" type="button" data-sky-btn>🌙 Nakts</button>
+      <button class="tool" id="musicBtn" type="button" data-music-btn aria-pressed="true">🎵 Mūzika</button>
+      <button class="tool" id="sound" type="button" aria-pressed="false">🔊 Skaņa</button>
       <button class="tool" id="language" type="button" aria-label="Switch language">🌐 LV</button>
     </nav>
     <section class="hero" aria-labelledby="title">
-      <div class="moon" aria-hidden="true">🌙</div>
+      <div class="sky-spot" data-sky-spot aria-hidden="true"></div>
       <p class="eyebrow" data-lv="Mazliet burvestības katru dienu" data-en="A little magic every day"></p>
       <h1 id="title" data-lv="Skanītis" data-en="Skanītis"></h1>
       <p class="intro" data-lv="Ienāc sapņainā pasaulē, kur burti pārtop zvaigznēs un skaitļi — mazās uzvarās." data-en="Step into a dreamy world where letters turn into stars and numbers become little victories."></p>
@@ -240,8 +217,8 @@
   <script>
     (() => {
       const translations = {
-        lv: { language: "🌐 LV", theme: "🪄 Krāsas", langLabel: "Pārslēgt valodu", themeLabel: "Mainīt krāsas" },
-        en: { language: "🌐 EN", theme: "🪄 Colours", langLabel: "Switch language", themeLabel: "Change colours" }
+        lv: { language: "🌐 LV", theme: "🪄 Krāsas", langLabel: "Pārslēgt valodu", themeLabel: "Mainīt krāsas", soundOn: "🔊 Skaņa", soundOff: "🔇 Bez skaņas" },
+        en: { language: "🌐 EN", theme: "🪄 Colours", langLabel: "Switch language", themeLabel: "Change colours", soundOn: "🔊 Sound", soundOff: "🔇 Sound off" }
       };
       const palettes = [
         ["#10172a", "#293a65", "#422d62", "#ffd166", "#75e6c1"],
@@ -271,6 +248,7 @@
       if (!translations[lang]) lang = "lv";
       let theme = Number(get("bb_theme", "0"));
       if (!Number.isInteger(theme) || theme < 0 || theme >= palettes.length) theme = 0;
+      let muted = get("bb_mute", false) === true;
 
       function applyLanguage() {
         document.documentElement.lang = lang;
@@ -282,6 +260,9 @@
         langButton.setAttribute("aria-label", words.langLabel);
         themeButton.textContent = words.theme;
         themeButton.setAttribute("aria-label", words.themeLabel);
+        const soundButton = document.getElementById("sound");
+        soundButton.textContent = muted ? words.soundOff : words.soundOn;
+        soundButton.setAttribute("aria-pressed", String(muted));
         document.title = lang === "lv" ? "Skanītis — Burvju spēles" : "Skanītis — Wizard Games";
       }
       function applyTheme() {
@@ -296,6 +277,11 @@
       document.getElementById("language").addEventListener("click", () => {
         lang = lang === "lv" ? "en" : "lv";
         set("bb_lang", lang);
+        applyLanguage();
+      });
+      document.getElementById("sound").addEventListener("click", () => {
+        muted = !muted;
+        set("bb_mute", muted);
         applyLanguage();
       });
       document.getElementById("theme").addEventListener("click", () => {

@@ -2,7 +2,7 @@
 <html lang="lv"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#10172a">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; font-src 'self'; img-src 'self' data:; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'unsafe-inline'; font-src 'self'; img-src 'self' data:; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <title>Ciparu Burvis</title>
 <style>
@@ -13,18 +13,24 @@ box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:en
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html{min-height:100%;background:radial-gradient(ellipse at 18% 0%,var(--bg1),transparent 48%),radial-gradient(ellipse at 92% 20%,var(--bg2),transparent 42%),var(--bg) fixed;scroll-padding-top:env(safe-area-inset-top,0px)}
 body{margin:0;min-height:100vh;overflow-y:auto;font-family:"Baloo 2","Trebuchet MS",system-ui,sans-serif;color:var(--text);user-select:none;-webkit-user-select:none}
-.wrap{max-width:760px;margin:0 auto;padding:14px;min-height:100vh;display:flex;flex-direction:column}
-.tools{display:flex;gap:9px;align-items:center;flex-wrap:wrap;justify-content:flex-end;margin-bottom:12px}
+.wrap{max-width:1032px;margin:0 auto;padding:26px 16px 40px;display:flex;flex-direction:column}
+/* header: same layout and sizes as the typing game */
+.site-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:clamp(64px,12vh,110px);flex-wrap:wrap;font-family:ui-rounded,"Trebuchet MS",system-ui,sans-serif}
+.brand{display:flex;align-items:center;gap:12px}
+.logo{font-size:38px;filter:drop-shadow(0 4px 12px #0005)}
+.brand h1{font-size:clamp(22px,4vw,32px);font-weight:700;margin:0;letter-spacing:.2px;color:var(--ink)}
+.sub{color:var(--muted);font-size:13px;margin-top:3px}
+@media(max-width:600px){.wrap{padding:16px 10px 28px}.brand .logo{font-size:31px}}
+.tools{display:flex;gap:9px;align-items:center;flex-wrap:wrap;justify-content:flex-end;margin-left:auto;align-self:flex-start}
+/* narrower screens (when title and buttons no longer fit side by side): the buttons stay on the top row like on the home page, the title goes below */
+@media(max-width:960px){.site-head .tools{order:-1;width:100%}}
 .tool{display:inline-flex;align-items:center;min-height:42px;padding:9px 14px;border:1px solid #ffffff24;border-radius:999px;background:#ffffff0c;color:var(--ink);font-family:ui-rounded,"Trebuchet MS",system-ui,sans-serif;font-size:.9rem;font-weight:750;line-height:1.2;text-decoration:none;cursor:pointer;backdrop-filter:blur(12px)}
 .tool:hover{border-color:#ffffff70;background:#ffffff18}
 @media(max-width:640px){.tools{gap:7px}.tool{padding-inline:11px}}
 @media(max-width:420px){.tools{gap:6px}.tool{min-height:38px;padding-inline:9px;font-size:.82rem}}
-.screen{display:none;flex:1;flex-direction:column;gap:14px}
+.screen{display:none;flex-direction:column;gap:14px;width:100%;max-width:760px;margin:0 auto}
 .screen.on{display:flex;animation:in .18s ease-out}
 @keyframes in{from{opacity:0;transform:scale(.97)}to{opacity:1;transform:none}}
-h1{margin:6px 0 0;text-align:center;color:#fff;font-size:clamp(2rem,9vw,3rem);text-shadow:0 4px 0 var(--shadow)}
-h1>span:first-child{display:inline-block;animation:bob 1.6s ease-in-out infinite}
-@keyframes bob{50%{transform:translateY(-8px) rotate(8deg)}}
 .card{background:var(--card);border-radius:24px;padding:16px;box-shadow:0 8px 0 var(--shadow)}
 .card h2{margin:0 0 10px;font-size:1.2rem}
 .chips{display:flex;flex-wrap:wrap;gap:10px}
@@ -53,28 +59,40 @@ h1>span:first-child{display:inline-block;animation:bob 1.6s ease-in-out infinite
 .ans.no{opacity:.3;animation:shake .3s;pointer-events:none}
 @keyframes pop{0%{transform:scale(.8)}60%{transform:scale(1.12)}100%{transform:scale(1)}}
 @keyframes shake{25%{transform:translateX(-10px)}75%{transform:translateX(10px)}}
-.end{text-align:center;align-items:center;justify-content:center}
+.end{text-align:center;align-items:center;justify-content:center;min-height:55vh}
 .stars{font-size:clamp(3rem,16vw,5rem);letter-spacing:6px}
 .stars span{display:inline-block;animation:pop .5s backwards}
 .big{font-size:2.4rem;font-weight:800}
-.credit{text-align:center;color:var(--foot);font-size:12px;margin-top:18px}
+.footer{text-align:center;color:var(--foot);font-size:12px;margin-top:18px}
 #fx{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:9}
-.cursor-spark{position:fixed;z-index:10;pointer-events:none;color:var(--gold);font-size:var(--size);text-shadow:0 0 12px currentColor;animation:cursorSpark .8s ease-out forwards}
+.cursor-spark{position:fixed;z-index:10;pointer-events:none;color:var(--gold);font-size:var(--size);font-weight:800;text-shadow:0 0 12px currentColor;animation:cursorSpark .8s ease-out forwards}
 @keyframes cursorSpark{0%{opacity:0;transform:translate(-50%,-50%) scale(.2)}20%{opacity:1}100%{opacity:0;transform:translate(calc(-50% + var(--dx)),-35px) scale(1.3) rotate(90deg)}}
 @media(prefers-reduced-motion:reduce){.cursor-spark{display:none}}
-</style></head>
+</style>
+<script src="./sky.js" defer></script>
+</head>
 <body>
 <canvas id="fx"></canvas>
 <div class="wrap">
+<header class="site-head">
+ <div class="brand">
+  <div class="logo" aria-hidden="true">🦊</div>
+  <div>
+   <h1 id="gameTitle">Ciparu Burvis</h1>
+   <div class="sub" id="gameSub">Rēķini, mācies un krāj zvaigznes!</div>
+  </div>
+ </div>
 <nav class="tools" aria-label="Game navigation">
-  <a class="tool" href="./index.html" id="homeLink">✨&nbsp;<span id="homeText">Sākums</span></a>
-  <button class="tool" id="themeBtn" type="button">🪄 Krāsas</button>
+  <a class="tool" href="./index.html" id="homeLink">✨ Sākums</a>
+  <button class="tool" id="themeBtn" type="button" data-burst="digits">🪄 Krāsas</button>
+  <button class="tool" id="skyBtn" type="button" data-sky-btn>🌙 Nakts</button>
+  <button class="tool" id="musicBtn" type="button" data-music-btn aria-pressed="true">🎵 Mūzika</button>
   <button class="tool" id="snd" type="button">🔊 Skaņa</button>
   <button class="tool" id="langBtn" type="button" aria-label="Switch language">🌐 LV</button>
 </nav>
+</header>
 
 <div class="screen on" id="menu">
-  <h1><span>🦊</span> <span id="gameTitle">Ciparu Burvis</span></h1>
   <div class="card"><h2 id="opsTitle">Ko trenēsim?</h2><div class="chips" id="ops"></div></div>
   <div class="card"><h2 id="levelTitle">Grūtības pakāpe</h2><div class="chips lv" id="lv"></div><div class="hint" id="hint"></div></div>
   <div class="card"><h2 id="lengthTitle">Cik uzdevumu?</h2><div class="chips len" id="len"></div></div>
@@ -95,7 +113,10 @@ h1>span:first-child{display:inline-block;animation:bob 1.6s ease-in-out infinite
   <button class="chip" id="menuBtn" style="flex:none;width:100%">Izvēlne</button>
 </div>
 
-<div class="credit">2026</div>
+<div class="footer">
+ <div id="footTip">Padoms: nesteidzies — vispirms padomā, tad spied. ✨</div>
+ <div style="margin-top:6px">2026</div>
+</div>
 </div>
 <script>
 const $=s=>document.querySelector(s);
@@ -104,12 +125,12 @@ const pick=a=>a[r(0,a.length-1)];
 const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=r(0,i);[a[i],a[j]]=[a[j],a[i]]}return a};
 const OPS={add:"+",sub:"−",mul:"×",div:"÷"};
 const COPY={
-  lv:{title:"Ciparu Burvis",home:"Sākums",opsTitle:"Ko trenēsim?",levelTitle:"Grūtības pakāpe",lengthTitle:"Cik uzdevumu?",start:"Sākt! 🚀",again:"Spēlēt vēlreiz 🔁",menu:"Izvēlne",soundOn:"🔊 Skaņa",soundOff:"🔇 Bez skaņas",theme:"🪄 Krāsas",language:"🌐 LV",homeLabel:"Sākums",
+  lv:{title:"Ciparu Burvis",footTip:"Padoms: nesteidzies — vispirms padomā, tad spied. ✨",sub:"Rēķini, mācies un krāj zvaigznes!",home:"Sākums",opsTitle:"Ko trenēsim?",levelTitle:"Grūtības pakāpe",lengthTitle:"Cik uzdevumu?",start:"Sākt! 🚀",again:"Spēlēt vēlreiz 🔁",menu:"Izvēlne",soundOn:"🔊 Skaņa",soundOff:"🔇 Bez skaņas",theme:"🪄 Krāsas",language:"🌐 LV",homeLabel:"Sākums",
     ops:{add:"Saskaitīšana",sub:"Atņemšana",mul:"Reizināšana",div:"Dalīšana"},levels:["⭐ Viegls","⭐⭐ Vidējs","⭐⭐⭐ Grūts"],
     hints:{add:["līdz 20","divciparu + vienciparu","divciparu + divciparu"],sub:["līdz 20","divciparu − vienciparu","divciparu − divciparu"],mul:["reizrēķins 2–5","reizrēķins 2–9","līdz 12 × 12"],div:["reizrēķins 2–5","reizrēķins 2–9","līdz 12 × 12"]},
     ok:["Lieliski!","Jā!","Brīnišķīgi!","Super!","Oho!","Malacis!","Perfekti!"],no:["Mēģini vēlreiz!","Gandrīz!","Tev izdosies!","Paskaties uzmanīgi!"],
     result:"{score} / {len} ar pirmo mēģinājumu",champion:"Čempions! 🏆",great:"Lielisks darbs! 💪",good:"Labs sākums — trenējies, un izdosies vēl labāk! 🌱",streak:"Labākā sērija: {best} 🔥"},
-  en:{title:"Number Wizard",home:"Home",opsTitle:"What shall we practise?",levelTitle:"Choose a challenge",lengthTitle:"How many questions?",start:"Let’s go! 🚀",again:"Play again 🔁",menu:"Menu",soundOn:"🔊 Sound",soundOff:"🔇 Sound off",theme:"🪄 Colours",language:"🌐 EN",homeLabel:"Home",
+  en:{title:"Number Wizard",footTip:"Tip: take your time — think first, then tap. ✨",sub:"Count, learn and collect stars!",home:"Home",opsTitle:"What shall we practise?",levelTitle:"Choose a challenge",lengthTitle:"How many questions?",start:"Let’s go! 🚀",again:"Play again 🔁",menu:"Menu",soundOn:"🔊 Sound",soundOff:"🔇 Sound off",theme:"🪄 Colours",language:"🌐 EN",homeLabel:"Home",
     ops:{add:"Addition",sub:"Subtraction",mul:"Multiplication",div:"Division"},levels:["⭐ Easy","⭐⭐ Medium","⭐⭐⭐ Hard"],
     hints:{add:["up to 20","two-digit + one-digit","two-digit + two-digit"],sub:["within 20","two-digit − one-digit","two-digit − two-digit"],mul:["tables 2–5","tables 2–9","up to 12 × 12"],div:["tables 2–5","tables 2–9","up to 12 × 12"]},
     ok:["Great!","Yes!","Awesome!","Super!","Wow!","Nice one!","Perfect!"],no:["Try again!","Almost!","You can do it!","Look closely!"],
@@ -147,7 +168,9 @@ function updateLabels(){
   document.documentElement.lang=lang;
   document.title=words.title;
   $("#gameTitle").textContent=words.title;
-  $("#homeText").textContent=words.home;
+  $("#gameSub").textContent=words.sub;
+  $("#footTip").textContent=words.footTip;
+  $("#homeLink").textContent="✨ "+words.home;
   $("#homeLink").setAttribute("aria-label",words.homeLabel);
   $("#opsTitle").textContent=words.opsTitle;
   $("#levelTitle").textContent=words.levelTitle;
@@ -276,7 +299,7 @@ $("#start").onclick=start;
 $("#again").onclick=start;
 $("#menuBtn").onclick=toMenu;
 $("#back").onclick=toMenu;
-$("#snd").onclick=()=>{sound=!sound;muted=!sound;persist("bb_mute",muted);updateLabels();if(sound)audio();};
+$("#snd").onclick=()=>{sound=!sound;muted=!sound;persist("bb_mute",muted);updateLabels();if(sound)audio()};
 
 /* ---------- sound ---------- */
 let ac;
@@ -315,9 +338,9 @@ let lastSpark=0;
 addEventListener("pointermove",e=>{
   if(e.pointerType==="touch"||matchMedia("(prefers-reduced-motion: reduce)").matches)return;
   const now=performance.now();if(now-lastSpark<48)return;lastSpark=now;
-  const spark=document.createElement("span");spark.className="cursor-spark";spark.textContent=Math.random()>.5?"✦":"✧";
+  const spark=document.createElement("span");spark.className="cursor-spark";spark.textContent=String(Math.floor(Math.random()*10));   // cursor trail: glowing digits
   spark.style.left=e.clientX+"px";spark.style.top=e.clientY+"px";
-  spark.style.setProperty("--dx",(Math.random()*30-15)+"px");spark.style.setProperty("--size",(10+Math.random()*9)+"px");
+  spark.style.setProperty("--dx",(Math.random()*30-15)+"px");spark.style.setProperty("--size",(12+Math.random()*9)+"px");
   document.body.appendChild(spark);setTimeout(()=>spark.remove(),850);
 },{passive:true});
 updateLabels();
