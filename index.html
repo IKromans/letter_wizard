@@ -43,25 +43,29 @@
       filter: blur(35px);
     }
     /* same frame as the games: 1000 px wide, 16 px from the edges, toolbar 26 px from the top (phones: 10 px / 16 px) */
-    .page { position: relative; z-index: 1; width: min(100% - 32px, 1000px); margin: 0 auto; padding: 26px 0 42px; }
+    /* the footer sits at the bottom of the window (or below the content when the page is taller) */
+    .page { position: relative; z-index: 1; display: flex; min-height: 100vh; min-height: 100dvh; flex-direction: column; width: min(100% - 32px, 1000px); margin: 0 auto; padding: 26px 0 40px; }
     .toolbar { display: flex; justify-content: flex-end; gap: 9px; }
+    /* same button style as the game pages */
     .tool {
+      display: inline-flex;
+      align-items: center;
       min-height: 42px;
       padding: 9px 14px;
       border: 1px solid #ffffff24;
       border-radius: 999px;
       background: #ffffff0c;
       color: var(--ink);
-      font: inherit;
+      font-family: ui-rounded, "Trebuchet MS", system-ui, sans-serif;
       font-size: .9rem;
       font-weight: 750;
+      line-height: 1.2;
       cursor: pointer;
       backdrop-filter: blur(12px);
     }
     .tool:hover { border-color: #ffffff70; background: #ffffff18; }
-    .hero { padding: clamp(42px, 9vh, 92px) 0 40px; text-align: center; }
-    /* empty space above the title: the top of the sun / moon path (drawn by sky.js) */
-    .sky-spot { width: 98px; height: 98px; margin: 0 auto 20px; }
+    /* open sky strip below the buttons, the same height on every page: the sun / moon travel here (sky.js) */
+    .hero { padding: clamp(64px, 12vh, 110px) 0 30px; text-align: center; }
     .eyebrow {
       margin: 0 0 9px;
       color: var(--mint);
@@ -149,7 +153,7 @@
     .enter { margin-top: auto; color: var(--gold); font-weight: 800; }
     .enter span { display: inline-block; margin-left: 5px; transition: transform .2s ease; }
     .game:hover .enter span { transform: translateX(5px); }
-    footer { padding-top: 37px; color: #a8a2c2; text-align: center; font-size: .88rem; }
+    footer { margin-top: auto; padding-top: 30px; color: #a8a2c2; text-align: center; font-size: .88rem; }
     .credit { margin: 6px 0 0; color: #a8a2c2; text-align: center; font-size: 12px; }
     .spark {
       position: fixed;
@@ -165,9 +169,8 @@
       20% { opacity: 1; }
       100% { opacity: 0; transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(1.25) rotate(80deg); }
     }
-    @media (max-width: 600px) { .page { width: calc(100% - 20px); padding-top: 16px; } }
+    @media (max-width: 600px) { .page { width: calc(100% - 20px); padding-top: 16px; padding-bottom: 28px; } }
     @media (max-width: 640px) {
-      .hero { padding-top: 48px; }
       .games { grid-template-columns: 1fr; gap: 13px; }
       .game { min-height: 225px; }
       .toolbar { gap: 7px; }
@@ -191,7 +194,6 @@
       <button class="tool" id="language" type="button" aria-label="Switch language">🌐 LV</button>
     </nav>
     <section class="hero" aria-labelledby="title">
-      <div class="sky-spot" data-sky-spot aria-hidden="true"></div>
       <p class="eyebrow" data-lv="Mazliet burvestības katru dienu" data-en="A little magic every day"></p>
       <h1 id="title" data-lv="Skanītis" data-en="Skanītis"></h1>
       <p class="intro" data-lv="Ienāc sapņainā pasaulē, kur burti pārtop zvaigznēs un skaitļi — mazās uzvarās." data-en="Step into a dreamy world where letters turn into stars and numbers become little victories."></p>

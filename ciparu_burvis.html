@@ -13,7 +13,8 @@ box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:en
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html{min-height:100%;background:radial-gradient(ellipse at 18% 0%,var(--bg1),transparent 48%),radial-gradient(ellipse at 92% 20%,var(--bg2),transparent 42%),var(--bg) fixed;scroll-padding-top:env(safe-area-inset-top,0px)}
 body{margin:0;min-height:100vh;overflow-y:auto;font-family:"Baloo 2","Trebuchet MS",system-ui,sans-serif;color:var(--text);user-select:none;-webkit-user-select:none}
-.wrap{max-width:1032px;margin:0 auto;padding:26px 16px 40px;display:flex;flex-direction:column}
+/* the footer sits at the bottom of the window (or below the content when the page is taller) */
+.wrap{max-width:1032px;min-height:100vh;min-height:100dvh;margin:0 auto;padding:26px 16px 40px;display:flex;flex-direction:column}
 /* header: same layout and sizes as the typing game */
 .site-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:clamp(64px,12vh,110px);flex-wrap:wrap;font-family:ui-rounded,"Trebuchet MS",system-ui,sans-serif}
 .brand{display:flex;align-items:center;gap:12px}
@@ -23,7 +24,8 @@ body{margin:0;min-height:100vh;overflow-y:auto;font-family:"Baloo 2","Trebuchet 
 @media(max-width:600px){.wrap{padding:16px 10px 28px}.brand .logo{font-size:31px}}
 .tools{display:flex;gap:9px;align-items:center;flex-wrap:wrap;justify-content:flex-end;margin-left:auto;align-self:flex-start}
 /* narrower screens (when title and buttons no longer fit side by side): the buttons stay on the top row like on the home page, the title goes below */
-@media(max-width:960px){.site-head .tools{order:-1;width:100%}}
+/* open sky strip below the buttons, the same on every page: the sun / moon travel here (sky.js) */
+@media(max-width:960px){.site-head{margin-bottom:22px}.site-head .tools{order:-1;width:100%;margin-bottom:calc(clamp(64px,12vh,110px) - 12px)}}
 .tool{display:inline-flex;align-items:center;min-height:42px;padding:9px 14px;border:1px solid #ffffff24;border-radius:999px;background:#ffffff0c;color:var(--ink);font-family:ui-rounded,"Trebuchet MS",system-ui,sans-serif;font-size:.9rem;font-weight:750;line-height:1.2;text-decoration:none;cursor:pointer;backdrop-filter:blur(12px)}
 .tool:hover{border-color:#ffffff70;background:#ffffff18}
 @media(max-width:640px){.tools{gap:7px}.tool{padding-inline:11px}}
@@ -63,7 +65,7 @@ body{margin:0;min-height:100vh;overflow-y:auto;font-family:"Baloo 2","Trebuchet 
 .stars{font-size:clamp(3rem,16vw,5rem);letter-spacing:6px}
 .stars span{display:inline-block;animation:pop .5s backwards}
 .big{font-size:2.4rem;font-weight:800}
-.footer{text-align:center;color:var(--foot);font-size:12px;margin-top:18px}
+.footer{text-align:center;color:var(--foot);font-size:12px;margin-top:auto;padding-top:18px}
 #fx{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:9}
 .cursor-spark{position:fixed;z-index:10;pointer-events:none;color:var(--gold);font-size:var(--size);font-weight:800;text-shadow:0 0 12px currentColor;animation:cursorSpark .8s ease-out forwards}
 @keyframes cursorSpark{0%{opacity:0;transform:translate(-50%,-50%) scale(.2)}20%{opacity:1}100%{opacity:0;transform:translate(calc(-50% + var(--dx)),-35px) scale(1.3) rotate(90deg)}}

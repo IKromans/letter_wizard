@@ -82,27 +82,17 @@
 
   /* ---------------- the path of the sun and moon ----------------
      A gentle arc: rising low on the left, highest in the middle of the day / night, setting low on the right.
-     Home page: the top of the arc is the empty spot above the title ([data-sky-spot]) and the arc is tall.
-     Games: a shallow arc along the header band, so the sun/moon stays above the game cards. */
+     Every page uses the same path: a shallow arc through the open "sky strip" right below the button row
+     (the strip is clamp(64px, 12vh, 110px) tall — the pages keep that space free), so the sun / moon
+     stays put when moving between the home page and the games. */
   let arc = null, skyP = .5, lastClock = -1e9;
   function buildArc() {
-    const spot = document.querySelector("[data-sky-spot]")?.getBoundingClientRect();
-    if (spot) {
-      const top = spot.top + scrollY + spot.height / 2 - 12;             // a touch higher, clear of the text below
-      arc = { apexX: spot.left + spot.width / 2, top, horizon: Math.max(top + 170, H * .55), left: W * .07, right: W * .93, spotR: spot.width / 2, bandTop: H * .04, bandBottom: H * .42 };
-      return;
-    }
-    // games: a shallow arc through the open strip between the header and the game panel
-    const head = document.querySelector(".site-head, header")?.getBoundingClientRect();
-    const panel = document.querySelector(".screen.on, .panel")?.getBoundingClientRect();
-    if (head && panel && panel.top > head.bottom) {
-      const strip = panel.top - head.bottom, r = Math.max(16, Math.min(Math.max(26, Math.min(48, W * .036)), strip * .4));
-      const top = head.bottom + scrollY + strip / 2 - strip * .06;
-      arc = { apexX: W / 2, top, horizon: top + strip * .5, left: W * .05, right: W * .95, spotR: 0, r, bandTop: 10, bandBottom: panel.top + scrollY - 6 };
-      return;
-    }
-    const top = head ? head.top + scrollY + head.height / 2 : Math.max(52, H * .09);
-    arc = { apexX: W / 2, top, horizon: top + Math.max(80, W * .07), left: W * .05, right: W * .95, spotR: 0, bandTop: H * .04, bandBottom: H * .4 };
+    const tools = document.querySelector(".toolbar, .tools")?.getBoundingClientRect();
+    const stripTop = tools ? tools.bottom + scrollY : (W <= 600 ? 16 : 26) + 42;
+    const strip = Math.max(64, Math.min(110, H * .12));
+    const r = Math.max(16, Math.min(Math.max(26, Math.min(48, W * .036)), strip * .4));
+    const top = stripTop + strip / 2 - strip * .06;
+    arc = { apexX: W / 2, top, horizon: top + strip * .5, left: W * .05, right: W * .95, r, bandTop: 10, bandBottom: stripTop + strip - 6 };
   }
   function arcPoint(p) {
     p = Math.max(0, Math.min(1, p));
@@ -141,7 +131,7 @@
   }
 
   function buildNight() {
-    const r = arc.spotR ? arc.spotR * .9 : arc.r ? arc.r * .92 : Math.max(26, Math.min(44, W * .034)), f = moonPhase();
+    const r = arc.r * .92, f = moonPhase();
     moon = { r, img: moonSprite(r, f), light: (1 - Math.cos(2 * Math.PI * f)) / 2 };
     starSprites = STAR_TINTS.map(rgb => sprite(32, 32, (g, w) => {
       const grd = g.createRadialGradient(w / 2, w / 2, 0, w / 2, w / 2, w / 2);
@@ -389,7 +379,7 @@
     skyGrad.addColorStop(0, "rgba(150,192,252,.6)");
     skyGrad.addColorStop(.55, "rgba(202,182,242,.52)");
     skyGrad.addColorStop(1, "rgba(255,206,214,.55)");
-    sun = { r: arc.spotR || arc.r || Math.max(30, Math.min(52, W * .04)) };
+    sun = { r: arc.r };
     const cloudCount = W < 700 ? 4 : 6;
     clouds = Array.from({ length: cloudCount }, (_, i) => {
       const w = rand(200, 380) * Math.min(1, Math.max(.6, W / 1000)), h = w * .42;
