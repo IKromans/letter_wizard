@@ -7,6 +7,16 @@
    window.Sky.chime() plays the shared "sound on" ding. */
 (() => {
   "use strict";
+  /* Pages never reload while moving around, so the sky and the music keep going:
+     the home page (its <script data-shell>) is the "shell" — it owns the sky canvas and the music, and opens a game
+     in a full-window frame on top (index.html#burtinu_burvis), sharing the address bar history (Back returns home).
+     Inside that frame this script is the "embedded" side: no canvas or music of its own; it hands the game's
+     background, title and button presses (music, day/night, Sākums) to the shell. A game opened directly
+     moves itself into the shell (a tiny script in its <head>); add ?solo to the address to open it on its own. */
+  const ROLE = document.currentScript?.hasAttribute("data-shell") ? "shell" : window.parent !== window ? "embedded" : "solo";
+  const EMBEDDED = ROLE === "embedded", SHELL = ROLE === "shell";
+  const MSG = "skanitis";
+  const toShell = data => { try { parent.postMessage({ [MSG]: data }, "*"); } catch { /* no shell */ } };
   const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)");
   const rand = (a, b) => a + Math.random() * (b - a);
   // Random gaps like real events (a Poisson process): usually around `mean`, sometimes very soon, sometimes long. Never below `min`.
@@ -85,10 +95,10 @@
      Every page uses the same path: a shallow arc through the open "sky strip" right below the button row
      (the strip is clamp(64px, 12vh, 110px) tall — the pages keep that space free), so the sun / moon
      stays put when moving between the home page and the games. */
-  let arc = null, skyP = .5, lastClock = -1e9;
+  let arc = null, skyP = .5, lastClock = -1e9, gameToolsBottom = null;   // while a game is open: where its button row ends
+  const toolsBottom = () => { const r = document.querySelector(".toolbar, .tools")?.getBoundingClientRect(); return r ? r.bottom + scrollY : null; };
   function buildArc() {
-    const tools = document.querySelector(".toolbar, .tools")?.getBoundingClientRect();
-    const stripTop = tools ? tools.bottom + scrollY : (W <= 600 ? 16 : 26) + 42;
+    const stripTop = gameToolsBottom ?? toolsBottom() ?? (W <= 600 ? 16 : 26) + 42;
     const strip = Math.max(64, Math.min(110, H * .12));
     const r = Math.max(16, Math.min(Math.max(26, Math.min(48, W * .036)), strip * .4));
     const top = stripTop + strip / 2 - strip * .06;
@@ -517,6 +527,7 @@
       build();
       cv.style.opacity = "1";
       showSkyButtons();
+      tellStage();
     }, reduceMotion.matches ? 0 : 450);
   }
 
@@ -532,6 +543,7 @@
     });
   }
   function toggleScene() {
+    if (EMBEDDED) return toShell({ sky: "toggle" });
     pressedHere = true;
     const m = mode === "day" ? "night" : "day";
     try { sessionStorage.setItem("bb_sky", m); } catch { /* private browsing */ }
@@ -668,7 +680,7 @@
   // Starts the music. Browsers decide whether sound may start before the visitor has clicked:
   // if the audio engine is allowed to run we begin straight away, otherwise on the first click, tap or key press.
   function play() {
-    if (playing || !enabled || document.hidden) return;
+    if (EMBEDDED || playing || !enabled || document.hidden) return;
     try { if (!ac) setupAudio(); } catch { return; }
     if (ac.state === "running") return begin();
     const p = ac.resume?.();
@@ -701,8 +713,9 @@
   const GESTURES = ["pointerdown", "keydown", "touchend", "click"];
   const onGesture = () => play();
   const removeGestureListeners = () => GESTURES.forEach(n => removeEventListener(n, onGesture, true));
-  GESTURES.forEach(n => addEventListener(n, onGesture, true));
+  if (!EMBEDDED) GESTURES.forEach(n => addEventListener(n, onGesture, true));
   document.addEventListener("visibilitychange", () => {
+    if (EMBEDDED) return;
     if (document.hidden) { stop(); ac?.suspend?.(); } else { play(); if (ac && ac.state !== "running") ac.resume?.().catch?.(() => {}); }
   });
 
@@ -718,10 +731,12 @@
     });
   }
   function setMusic(on) {
+    if (EMBEDDED) return toShell({ music: !!on });
     enabled = !!on;
     try { localStorage.setItem("bb_music", JSON.stringify(enabled)); } catch { /* private browsing */ }
     showMusicButtons();
     enabled ? play() : stop();
+    tellStage();
   }
 
   /* ---------------- button sound ----------------
@@ -743,6 +758,7 @@
   }
 
   function sparkle() {
+    if (EMBEDDED) return toShell({ sparkle: true });                     // the shell's audio is already awake
     whenAudioRuns(() => {
       if (!sfx) {                                                         // its own small output with a soft echo, independent of the music volume
         sfx = ac.createGain();

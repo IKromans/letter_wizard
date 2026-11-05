@@ -6,6 +6,9 @@
   <meta name="theme-color" content="#11142b">
   <meta name="description" content="A little magic for curious minds. Choose a game and begin your adventure.">
   <title>Skanītis — Burvju spēles</title>
+  <link rel="icon" href="img/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="img/favicon-32.png" type="image/png" sizes="32x32">
+  <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
   <style>
     :root {
       color-scheme: dark;
@@ -181,6 +184,11 @@
       *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
       .spark { display: none; }
     }
+    /* magic wand cursor: 32px like a normal pointer, the click point is the star tip (6,6); glows over anything clickable */
+    html{cursor:url(img/wand.svg) 6 6,auto}
+    a,button,summary,select,label,[role=button],[onclick],.tool,.chip,.go,.ans{cursor:url(img/wand-glow.svg) 6 6,pointer!important}
+    button:disabled{cursor:url(img/wand.svg) 6 6,default!important}
+    input[type=text],input:not([type]),textarea,.input{cursor:text!important}
   </style>
   <script src="./sky.js" defer></script>
 </head>

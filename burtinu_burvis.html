@@ -4,6 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Burtiņu Burvis</title>
+<link rel="icon" href="img/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="img/favicon-32.png" type="image/png" sizes="32x32">
+<link rel="apple-touch-icon" href="img/apple-touch-icon.png">
 <style>
 :root {
  --bg: #10172a;
@@ -191,6 +194,11 @@ summary{cursor:pointer;font-weight:800;color:var(--gold)}
 .confetti{position:fixed;top:-20px;z-index:8;pointer-events:none;border-radius:2px;animation:fall linear forwards}
 @keyframes fall{0%{transform:translate(0,0) rotate(0);opacity:1}100%{transform:translate(var(--dx),108vh) rotate(var(--rot));opacity:.9}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}.confetti,.spark,.dot,.cursor-spark{display:none}}
+/* magic wand cursor: 32px like a normal pointer, the click point is the star tip (6,6); glows over anything clickable */
+html{cursor:url(img/wand.svg) 6 6,auto}
+a,button,summary,select,label,[role=button],[onclick],.tool,.chip,.go,.ans{cursor:url(img/wand-glow.svg) 6 6,pointer!important}
+button:disabled{cursor:url(img/wand.svg) 6 6,default!important}
+input[type=text],input:not([type]),textarea,.input{cursor:text!important}
 </style>
 <script src="./sky.js" defer></script>
 </head>
