@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Burtiņu Burvis</title>
+<!-- opened on its own: move into the home page, which keeps the sky and music going between pages (sky.js); ?solo opens it alone -->
+<script>if (top === self && !/[?&]solo\b/.test(location.search)) location.replace("./index.html" + location.search + "#burtinu_burvis");</script>
 <link rel="icon" href="img/favicon.svg" type="image/svg+xml">
 <link rel="icon" href="img/favicon-32.png" type="image/png" sizes="32x32">
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
@@ -77,8 +79,10 @@ h1 { font-size: clamp(22px, 4vw, 32px); margin: 0; letter-spacing: .2px; }
  color: var(--muted);
  font-size: 13px;
 }
+/* the game panels are very slightly see-through: the sky (stars, the space station's light…) glimmers faintly behind them.
+   Same panel look as the math game. */
 .panel {
- background: linear-gradient(145deg, var(--c1), var(--c2));
+ background: linear-gradient(145deg, color-mix(in srgb, var(--c1) 84%, transparent), color-mix(in srgb, var(--c2) 84%, transparent));
  border: 1px solid #ffffff18;
  border-radius: 22px;
  padding: 22px;
@@ -127,7 +131,7 @@ button:disabled { opacity: .4; cursor: default; }
 .stat strong { display: block; font-size: 25px; margin-top: 3px; color: var(--gold); font-variant-numeric: tabular-nums; }
 .progress { height: 8px; background: #ffffff12; border-radius: 99px; overflow: hidden; margin: 0 0 18px; }
 .progress > div { height: 100%; width: 0; background: linear-gradient(90deg, var(--mint), var(--blue)); transition: width .2s; }
-.prompt-wrap { position: relative; background: var(--field); border: 1px solid #ffffff17; border-radius: 18px; padding: 24px; min-height: 174px; }
+.prompt-wrap { position: relative; background: color-mix(in srgb, var(--field) 92%, transparent); border: 1px solid #ffffff17; border-radius: 18px; padding: 24px; min-height: 174px; }
 .prompt-label { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 1.4px; margin-bottom: 14px; }
 .prompt { font-size: clamp(21px, 3.3vw, 31px); line-height: 1.75; letter-spacing: .3px; white-space: pre-wrap; overflow-wrap: anywhere; user-select: none; }
 .prompt .correct { color: var(--mint); }

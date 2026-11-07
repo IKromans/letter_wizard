@@ -12,7 +12,8 @@
      in a full-window frame on top (index.html#burtinu_burvis), sharing the address bar history (Back returns home).
      Inside that frame this script is the "embedded" side: no canvas or music of its own; it hands the game's
      background, title and button presses (music, day/night, Sākums) to the shell. A game opened directly
-     moves itself into the shell (a tiny script in its <head>); add ?solo to the address to open it on its own. */
+     moves itself into the shell (a tiny script in its <head>); add ?solo to the address to open it on its own.
+     See "the stage" near the end of this file. */
   const ROLE = document.currentScript?.hasAttribute("data-shell") ? "shell" : window.parent !== window ? "embedded" : "solo";
   const EMBEDDED = ROLE === "embedded", SHELL = ROLE === "shell";
   const MSG = "skanitis";
@@ -97,18 +98,30 @@
      stays put when moving between the home page and the games. */
   let arc = null, skyP = .5, lastClock = -1e9, gameToolsBottom = null;   // while a game is open: where its button row ends
   const toolsBottom = () => { const r = document.querySelector(".toolbar, .tools")?.getBoundingClientRect(); return r ? r.bottom + scrollY : null; };
-  function buildArc() {
+  let arcFrom = null, arcAt = 0;                                        // when the button row moves (home ↔ game), glide to the new path
+  function buildArc(glide = false) {
+    const before = arc;
     const stripTop = gameToolsBottom ?? toolsBottom() ?? (W <= 600 ? 16 : 26) + 42;
     const strip = Math.max(64, Math.min(110, H * .12));
     const r = Math.max(16, Math.min(Math.max(26, Math.min(48, W * .036)), strip * .4));
     const top = stripTop + strip / 2 - strip * .06;
     arc = { apexX: W / 2, top, horizon: top + strip * .5, left: W * .05, right: W * .95, r, bandTop: 10, bandBottom: stripTop + strip - 6 };
+    arcFrom = glide && before && !reduceMotion.matches ? before : null; arcAt = performance.now();
+    if (glide && !raf) draw(performance.now(), true);                    // no animation running (reduced motion): redraw once
+  }
+  function arcNow() {
+    if (!arcFrom) return arc;
+    const k = Math.min(1, (performance.now() - arcAt) / 800);
+    if (k >= 1) { arcFrom = null; return arc; }
+    const e = k * k * (3 - 2 * k), mix = key => arcFrom[key] + (arc[key] - arcFrom[key]) * e;
+    return { ...arc, top: mix("top"), horizon: mix("horizon") };
   }
   function arcPoint(p) {
     p = Math.max(0, Math.min(1, p));
-    const x = p < .5 ? arc.left + (arc.apexX - arc.left) * p * 2 : arc.apexX + (arc.right - arc.apexX) * (p - .5) * 2;
+    const a = arcNow();
+    const x = p < .5 ? a.left + (a.apexX - a.left) * p * 2 : a.apexX + (a.right - a.apexX) * (p - .5) * 2;
     const height = Math.pow(Math.sin(Math.PI * p), .6);                  // stays high most of the time, dips near rise / set
-    return { x, y: arc.horizon - (arc.horizon - arc.top) * height, low: 1 - height };   // low: 0 at the top, 1 at the horizon
+    return { x, y: a.horizon - (a.horizon - a.top) * height, low: 1 - height };   // low: 0 at the top, 1 at the horizon
   }
   function updateClock(now) {                                             // the real position changes slowly; check every 5 s
     if (now - lastClock < (previewing ? 0 : 5000)) return;
@@ -792,9 +805,21 @@
     "@keyframes skyPop{0%{scale:.2}18%{scale:var(--s1)}100%{scale:.8}}" +
     "@keyframes skySpin{from{rotate:0deg}to{rotate:var(--rot)}}" +
     "@keyframes skyFade{0%{opacity:0}5%{opacity:1}60%{opacity:1}100%{opacity:0}}" +
-    ".sky-ring{position:fixed;z-index:19;pointer-events:none;width:24px;height:24px;border-radius:50%;border:2px solid var(--c);box-shadow:0 0 18px var(--c),inset 0 0 12px var(--c);transform:translate(-50%,-50%) scale(.2);opacity:.9;animation:skyRing .9s ease-out forwards}" +
-    "@keyframes skyRing{to{transform:translate(-50%,-50%) scale(var(--grow));opacity:0}}" +
-    "@media(prefers-reduced-motion:reduce){.sky-burst,.sky-ring{display:none}}" +
+    // the rings: every one different (size, line, glow, tilt, speed); they grow in real size, so the line stays crisp
+    ".sky-ring{position:fixed;z-index:19;pointer-events:none;width:12px;height:12px;border-radius:50%;border:var(--w) var(--line) var(--c);" +
+      "box-shadow:0 0 var(--blur) var(--c),inset 0 0 calc(var(--blur) * .6) var(--c);transform:translate(-50%,-50%) rotate(var(--tilt)) scaleY(var(--sy));" +
+      "opacity:0;animation:skyRing var(--t) var(--ease) forwards}" +
+    ".sky-ring.bloom{border:0;box-shadow:none;background:radial-gradient(circle,var(--c) 0,color-mix(in srgb,var(--c) 35%,transparent) 30%,transparent 68%)}" +
+    "@keyframes skyRing{0%{opacity:var(--a)}100%{width:var(--size);height:var(--size);opacity:0;transform:translate(-50%,-50%) rotate(calc(var(--tilt) + var(--spin))) scaleY(var(--sy))}}" +
+    // the glowing air around the wand: a soft light that follows the pointer and gently breathes
+    ".sky-glow{position:fixed;left:0;top:0;z-index:40;pointer-events:none;width:var(--d);height:var(--d);margin:calc(var(--d) / -2) 0 0 calc(var(--d) / -2);opacity:0;mix-blend-mode:screen;will-change:transform,opacity}" +
+    ".sky-glow::before{content:'';position:absolute;inset:0;border-radius:50%;animation:skyBreathe var(--b) ease-in-out infinite alternate}" +
+    ".sky-glow.core{--d:120px;--b:1.7s}" +
+    ".sky-glow.core::before{background:radial-gradient(circle,color-mix(in srgb,#fff 55%,var(--gold,#ffd166)) 0,color-mix(in srgb,var(--gold,#ffd166) 40%,transparent) 12%,color-mix(in srgb,var(--gold,#ffd166) 12%,transparent) 38%,transparent 70%)}" +
+    ".sky-glow.haze{--d:340px;--b:3.1s}" +
+    ".sky-glow.haze::before{background:radial-gradient(circle,color-mix(in srgb,var(--mint,#75e6c1) 16%,transparent) 0,color-mix(in srgb,var(--gold,#ffd166) 8%,transparent) 35%,transparent 70%)}" +
+    "@keyframes skyBreathe{from{transform:scale(.9);opacity:.8}to{transform:scale(1.08);opacity:1}}" +
+    "@media(prefers-reduced-motion:reduce){.sky-burst,.sky-ring,.sky-glow{display:none}}" +
     "html[data-sky=day] :is(.brand h1,.sub,.footer,footer,.credit,.hero h1,.eyebrow,.intro,.choose){text-shadow:0 1px 8px rgba(30,24,80,.5)}" +
     "html[data-sky=day] :is(.footer,footer,.credit){color:#f3eefc}" +
     "@media(max-width:680px){.tool{min-width:42px;padding-inline:10px}.tool .tl:not(.keep){position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}}";
@@ -832,16 +857,34 @@
     const r = btn.getBoundingClientRect(), x = r.left + r.width / 2, y = r.top + r.height / 2;
     const reach = Math.max(innerWidth, innerHeight);                    // how far the magic can fly on this screen
 
-    // a glowing ring flashes out of the button
-    for (const [grow, delay] of [[14, 0], [24, .12]]) {
-      const ring = document.createElement("span");
-      ring.className = "sky-ring"; ring.setAttribute("aria-hidden", "true");
-      ring.style.left = x + "px"; ring.style.top = y + "px";
-      ring.style.setProperty("--c", colours[0]); ring.style.setProperty("--grow", grow);
-      ring.style.animationDelay = delay + "s";
-      document.body.appendChild(ring);
-      setTimeout(() => ring.remove(), 1300);
+    // glowing rings flash out of the button: a different set every time — how many, how big, how bright,
+    // how thick and what kind of line (solid, dashed, dotted, double), tilted and spinning, quick or slow
+    const ring = (props, delay, bloom) => {
+      const el = document.createElement("span");
+      el.className = bloom ? "sky-ring bloom" : "sky-ring"; el.setAttribute("aria-hidden", "true");
+      el.style.left = x + "px"; el.style.top = y + "px";
+      for (const [k, v] of Object.entries(props)) el.style.setProperty("--" + k, v);
+      el.style.animationDelay = delay + "s";
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), (delay + parseFloat(props.t)) * 1000 + 100);
+    };
+    const EASES = ["cubic-bezier(.1,.8,.25,1)", "cubic-bezier(.2,.6,.35,1)", "cubic-bezier(.05,.95,.3,1)", "ease-out", "cubic-bezier(.4,.1,.3,1)"];
+    let delay = 0;
+    for (let i = 0, n = 2 + Math.floor(Math.random() * 4); i < n; i++) {
+      const line = pick(["solid", "solid", "solid", "dashed", "dotted", "double"]);
+      const squash = Math.random() < .3;                                  // now and then an oval, like a ring seen at an angle
+      ring({
+        c: pick(colours),
+        size: (Math.random() < .3 ? rand(70, 220) : reach * rand(.25, .8)) + "px",
+        w: (line === "double" ? rand(6, 12) : line === "dotted" ? rand(4, 9) : Math.random() < .25 ? rand(7, 12) : rand(2.5, 6)) + "px",   // now and then a bold one
+        line, a: rand(.35, 1).toFixed(2), blur: rand(4, 30) + "px", t: rand(.6, 1.6).toFixed(2) + "s",
+        ease: pick(EASES), tilt: rand(0, 180) + "deg", sy: squash ? rand(.45, .85).toFixed(2) : 1,
+        spin: (line === "solid" && !squash ? 0 : rand(-160, 160)) + "deg"   // dashes, dots and ovals visibly turn
+      }, delay);
+      delay += rand(.03, .25);
     }
+    if (Math.random() < .6) ring({ c: pick(colours), size: rand(120, 340) + "px", w: "0px", line: "none", a: rand(.25, .6).toFixed(2), blur: "0px",
+      t: rand(.5, .9).toFixed(2) + "s", ease: "ease-out", tilt: "0deg", sy: 1, spin: "0deg" }, 0, true);   // a soft flash of light
 
     // the characters: a few close, most flying far across the page, each with its own size, spin and float
     const count = innerWidth < 600 ? 32 : 48;
@@ -867,11 +910,220 @@
     }
   }
 
+  /* ---------------- glowing air around the wand ----------------
+     Where the wand points, the air lights up a little: a small warm glow right at the tip and a wider, fainter
+     haze in the theme colours that trails a moment behind. Moving faster makes it brighter, resting lets it settle
+     to a soft glimmer, a click makes it flare, and it fades away when the pointer leaves. Touch: glows while touching. */
+  function startGlow() {
+    if (reduceMotion.matches) return;
+    const make = cls => { const el = document.createElement("div"); el.className = "sky-glow " + cls; el.setAttribute("aria-hidden", "true"); document.body.append(el); return el; };
+    const core = make("core"), haze = make("haze");
+    const c = { x: 0, y: 0, o: 0 }, h = { x: 0, y: 0, o: 0 };
+    let tx = 0, ty = 0, here = false, energy = 0, flare = 0, raf = 0, last = 0, seen = false;
+    const wake = () => { if (!raf) { last = performance.now(); raf = requestAnimationFrame(step); } };
+    function step(now) {
+      const k = Math.min(3, (now - last) / 16.7); last = now;             // frame-rate independent easing
+      const ease = (v, to, rate) => v + (to - v) * (1 - Math.pow(1 - rate, k));
+      energy *= Math.pow(.95, k); flare *= Math.pow(.9, k);
+      c.x = ease(c.x, tx, .35); c.y = ease(c.y, ty, .35);                 // the core stays close to the tip
+      h.x = ease(h.x, tx, .08); h.y = ease(h.y, ty, .08);                 // the haze drifts after it, like light in mist
+      c.o = ease(c.o, here ? .38 + .42 * energy + .3 * flare : 0, .12);
+      h.o = ease(h.o, here ? .5 + .5 * energy + .3 * flare : 0, .06);
+      core.style.opacity = Math.min(1, c.o).toFixed(3); haze.style.opacity = Math.min(1, h.o).toFixed(3);
+      core.style.transform = `translate3d(${c.x}px,${c.y}px,0) scale(${(1 + .25 * energy + .6 * flare).toFixed(3)})`;
+      haze.style.transform = `translate3d(${h.x}px,${h.y}px,0) scale(${(.9 + .25 * energy + .3 * flare).toFixed(3)})`;
+      raf = here || c.o > .005 || h.o > .005 ? requestAnimationFrame(step) : 0;   // sleeps when there is nothing to show
+    }
+    const at = e => {
+      if (!seen) { c.x = h.x = e.clientX; c.y = h.y = e.clientY; seen = true; }   // first appearance: start right at the wand
+      energy = Math.min(1, energy + Math.hypot(e.clientX - tx, e.clientY - ty) / 300);
+      tx = e.clientX; ty = e.clientY; here = true; wake();
+    };
+    addEventListener("pointermove", at, { passive: true });
+    addEventListener("pointerdown", e => { at(e); flare = 1; }, { passive: true });
+    addEventListener("pointerup", e => { if (e.pointerType === "touch") here = false; }, { passive: true });
+    addEventListener("pointercancel", () => { here = false; }, { passive: true });
+    document.documentElement.addEventListener("mouseleave", () => { here = false; seen = false; });
+    addEventListener("blur", () => { here = false; seen = false; });
+  }
+
+  /* ---------------- the stage: games open on top of the home page, so the sky and music never restart ----------------
+     Shell (home page): a click on a game card opens that page in a full-window, see-through frame and adds
+     #name to the address (index.html#burtinu_burvis), so Back returns home and the address can be bookmarked.
+     The game's own background is painted behind the shell's sky canvas, so it looks exactly like the game page.
+     Messages between the two are plain postMessage, so this also works when the files are opened from disk. */
+  const BG_PROPS = ["backgroundImage", "backgroundColor", "backgroundPosition", "backgroundSize", "backgroundRepeat", "backgroundAttachment", "backgroundOrigin", "backgroundClip"];
+  const pageName = path => path.split("/").pop().replace(/\.html$/, "") || "index";
+  // a link to one of the site's pages → its name ("index" for the home page); anything else → null
+  function linkTarget(href) {
+    let u; try { u = new URL(href, location.href); } catch { return null; }
+    const dir = p => p.replace(/[^/]*$/, "");
+    if (u.origin !== location.origin || dir(u.pathname) !== dir(location.pathname)) return null;
+    const name = pageName(u.pathname);
+    return /^[\w-]+$/.test(name) ? name : null;
+  }
+  const plainClick = e => e.button === 0 && !e.ctrlKey && !e.metaKey && !e.shiftKey && !e.altKey && !e.defaultPrevented;
+
+  let frame = null, frameName = "", frameShown = false, homeTitle = "", homeThemeColor = null;
+  const root = document.documentElement;
+  const themeMeta = () => document.querySelector('meta[name="theme-color"]');
+
+  function tellStage() {                                                  // shell → game: the current scene and music setting
+    if (!SHELL || !frame) return;
+    try { frame.contentWindow.postMessage({ [MSG]: { stage: { mode, music: enabled } } }, "*"); } catch { /* frame gone */ }
+  }
+
+  const SELF = SHELL ? pageName(location.pathname) : "";
+  const games = () => new Set([...document.querySelectorAll("a[href]")].map(a => linkTarget(a.href)).filter(n => n && n !== SELF && n !== "index"));
+  const hashGame = () => { const n = decodeURIComponent(location.hash.slice(1)); return games().has(n) ? n : ""; };
+
+  function openGame(name, push) {
+    if (frame && frameName === name) return;
+    if (frame) dropFrame();
+    if (push) history.pushState({ skyGame: name, fromHome: true }, "", "#" + name);
+    if (!root.classList.contains("in-game")) homeTitle = document.title;
+    homeThemeColor ??= themeMeta()?.content ?? null;
+    root.classList.add("in-game");
+    frame = document.createElement("iframe");
+    frame.className = "sky-stage";
+    frame.title = name;
+    frame.allow = "autoplay; fullscreen";
+    frame.src = "./" + name + ".html";                                    // set before it is added: no extra history entry
+    frameName = name; frameShown = false;
+    const f = frame;
+    f.addEventListener("load", () => setTimeout(() => { if (frame === f) showFrame(); }, 600));   // in case the game never reports in
+    document.body.append(f);
+  }
+
+  function showFrame() {
+    if (!frame || frameShown) return;
+    frameShown = true;
+    frame.classList.add("on");
+    frame.focus();
+    try { frame.contentWindow.focus(); } catch { /* not allowed */ }      // so typing goes straight into the game
+    tellStage();
+  }
+
+  function dropFrame() {
+    const f = frame;
+    frame = null; frameName = ""; frameShown = false;
+    f.classList.remove("on");
+    setTimeout(() => f.remove(), 400);                                    // after it has faded out
+  }
+
+  function closeGame() {
+    if (!frame && !root.classList.contains("in-game")) return;
+    if (frame) dropFrame();
+    root.classList.remove("in-game", "sky-bg");
+    BG_PROPS.forEach(p => { root.style[p] = ""; });
+    if (homeThemeColor !== null) themeMeta()?.setAttribute("content", homeThemeColor);
+    if (homeTitle) document.title = homeTitle;
+    if (gameToolsBottom !== null) { gameToolsBottom = null; buildArc(true); }
+    dispatchEvent(new CustomEvent("sky:home"));                           // the home page refreshes its texts (the language may have changed)
+  }
+
+  function goHome() {
+    if (history.state?.fromHome) history.back();                         // the visitor came from the home page: step back, as Back would
+    else { history.replaceState(null, "", location.pathname + location.search); closeGame(); }
+  }
+
+  function goTo(href) {                                                   // a link was pressed inside the game
+    const name = linkTarget(href);
+    if (name === SELF || name === "index") goHome();
+    else if (name && games().has(name)) openGame(name, true);
+    else location.href = href;
+  }
+
+  function gameState(s) {                                                 // the game reports its background, title and button row
+    if (s.bg) {
+      BG_PROPS.forEach(p => { root.style[p] = typeof s.bg[p] === "string" ? s.bg[p] : ""; });
+      root.classList.add("sky-bg");
+    }
+    if (s.scheme) frame.style.colorScheme = s.scheme;                     // must match the game's, or browsers paint the frame opaque
+    if (s.title) { document.title = s.title; frame.title = s.title; }
+    if (s.themeColor) themeMeta()?.setAttribute("content", s.themeColor);
+    if (typeof s.tools === "number" && s.tools !== gameToolsBottom) { gameToolsBottom = s.tools; buildArc(true); }
+    showFrame();
+  }
+
+  function startShell() {
+    const css = document.createElement("style");
+    css.textContent = ".sky-stage{position:fixed;inset:0;z-index:5;width:100%;height:100%;border:0;background:transparent;opacity:0;pointer-events:none;transition:opacity .35s ease}" +
+      ".sky-stage.on{opacity:1;pointer-events:auto}html.in-game .sky-glow{display:none}";   // the game has its own glow
+    document.head.append(css);
+    document.addEventListener("click", e => {
+      const a = e.target.closest?.("a[href]");
+      if (!a || !plainClick(e) || (a.target && a.target !== "_self")) return;
+      const name = linkTarget(a.href);
+      if (name && games().has(name)) { e.preventDefault(); openGame(name, true); }
+    });
+    addEventListener("popstate", () => { const n = hashGame(); n ? openGame(n, false) : closeGame(); });
+    addEventListener("message", e => {
+      const d = e.data?.[MSG];
+      if (!d || !frame || e.source !== frame.contentWindow) return;
+      if (d.state) gameState(d.state);
+      if (d.gesture) play();                                              // a tap inside the game also wakes the music
+      if (typeof d.music === "boolean") setMusic(d.music);
+      if (d.sky === "toggle") toggleScene();
+      if (d.sparkle) sparkle();
+      if (typeof d.go === "string") goTo(d.go);
+    });
+    const first = hashGame();                                             // opened as index.html#game (a bookmark, or a game page that moved here)
+    first ? openGame(first, false) : closeGame();
+  }
+
+  /* Embedded (a game inside the shell's frame): its page background is handed to the shell and made see-through here,
+     so the shell's sky shows behind the game. Links (Sākums) and the music / day-night buttons go to the shell. */
+  function startEmbedded() {
+    const seeThrough = document.createElement("style");
+    seeThrough.textContent = "html,body{background:transparent!important}";
+    document.head.append(seeThrough);
+    let timer = 0;
+    const report = () => {
+      seeThrough.disabled = true;                                         // read the page's real background for a moment
+      const rs = getComputedStyle(root), bs = getComputedStyle(document.body);
+      const from = rs.backgroundImage !== "none" || rs.backgroundColor !== "rgba(0, 0, 0, 0)" ? rs : bs;
+      const bg = Object.fromEntries(BG_PROPS.map(p => [p, from[p]]));
+      const scheme = rs.colorScheme;
+      seeThrough.disabled = false;
+      toShell({ state: { bg, scheme, title: document.title, tools: toolsBottom(), themeColor: themeMeta()?.content } });
+    };
+    const soon = () => { clearTimeout(timer); timer = setTimeout(report, 30); };
+    const watch = new MutationObserver(soon);
+    watch.observe(root, { attributes: true });                            // theme colours and language live on <html>
+    watch.observe(document.body, { attributes: true });
+    const title = document.querySelector("title");
+    if (title) watch.observe(title, { childList: true, characterData: true, subtree: true });
+    addEventListener("resize", soon);
+    document.fonts?.ready.then(soon);
+    addEventListener("load", soon);
+    report();
+    addEventListener("message", e => {                                    // the shell tells us the scene and music setting
+      const s = e.source === parent && e.data?.[MSG]?.stage;
+      if (!s) return;
+      if (valid(s.mode)) { mode = s.mode; root.dataset.sky = mode; }
+      enabled = !!s.music;
+      showMusicButtons(); showSkyButtons();
+    });
+    // the shell can only start the music after a tap or key press, and those happen in here
+    GESTURES.forEach(n => addEventListener(n, () => toShell({ gesture: true }), { capture: true, passive: true }));
+    document.addEventListener("click", e => {
+      const a = e.target.closest?.("a[href]");
+      if (!a || !plainClick(e) || (a.target && a.target !== "_self") || linkTarget(a.href) === null) return;
+      if (new URL(a.href).pathname === location.pathname) return;        // a jump within this page
+      e.preventDefault();
+      toShell({ go: a.href });
+    }, true);
+  }
+
   window.Sky = { setMusic, chime };
 
   function startPage() {
-    startSky();
+    if (EMBEDDED) startEmbedded();
+    else startSky();
+    if (SHELL) startShell();
     watchTools();
+    startGlow();
     document.addEventListener("click", e => { const b = e.target.closest?.("[data-burst]"); if (b) burst(b); });
     document.addEventListener("click", e => {
       const tool = e.target.closest?.(".tool");

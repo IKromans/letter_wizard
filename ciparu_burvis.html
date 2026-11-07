@@ -5,12 +5,15 @@
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'unsafe-inline'; font-src 'self'; img-src 'self' data:; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <title>Ciparu Burvis</title>
+<!-- opened on its own: move into the home page, which keeps the sky and music going between pages (sky.js); ?solo opens it alone -->
+<script>if (top === self && !/[?&]solo\b/.test(location.search)) location.replace("./index.html" + location.search + "#ciparu_burvis");</script>
 <link rel="icon" href="img/favicon.svg" type="image/svg+xml">
 <link rel="icon" href="img/favicon-32.png" type="image/png" sizes="32x32">
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
 <style>
 @font-face{font-family:"Baloo 2";font-style:normal;font-weight:400 800;font-display:swap;src:url(fonts/baloo2.woff2) format("woff2")}
 :root{--bg:#10172a;--g1:#293a65;--g2:#422d62;--panel:#19243d;--panel2:#202e4b;--ink:#f4f6ff;--muted:#aab6d3;--mint:#75e6c1;--gold:#ffd166;--shadow:rgba(0,0,0,.4);
+--c1:#1c2945;--c2:#17223a;
 --bg1:var(--g1);--bg2:var(--g2);--card:var(--panel);--text:var(--ink);--ok:var(--mint);--chip:var(--panel2);
 box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -36,10 +39,11 @@ body{margin:0;min-height:100vh;overflow-y:auto;font-family:"Baloo 2","Trebuchet 
 .screen{display:none;flex-direction:column;gap:14px;width:100%;max-width:760px;margin:0 auto}
 .screen.on{display:flex;animation:in .18s ease-out}
 @keyframes in{from{opacity:0;transform:scale(.97)}to{opacity:1;transform:none}}
-.card{background:var(--card);border-radius:24px;padding:16px;box-shadow:0 8px 0 var(--shadow)}
+/* the cards look like the typing game's panels, and are very slightly see-through: the sky glimmers faintly behind them */
+.card{background:linear-gradient(145deg,color-mix(in srgb,var(--c1) 84%,transparent),color-mix(in srgb,var(--c2) 84%,transparent));border:1px solid #ffffff18;border-radius:22px;padding:16px;box-shadow:0 18px 50px #0003}
 .card h2{margin:0 0 10px;font-size:1.2rem}
 .chips{display:flex;flex-wrap:wrap;gap:10px}
-.chip{flex:1 1 40%;font:inherit;font-size:1.4rem;font-weight:800;border:0;border-radius:18px;padding:10px;background:var(--chip);color:var(--text);cursor:pointer;box-shadow:0 4px 0 var(--shadow);transition:transform .08s}
+.chip{flex:1 1 40%;font:inherit;font-size:1.4rem;font-weight:800;border:0;border-radius:18px;padding:10px;background:color-mix(in srgb,var(--chip) 92%,transparent);color:var(--text);cursor:pointer;box-shadow:0 4px 0 var(--shadow);transition:transform .08s}
 .chip.on{background:var(--gold);color:#322849;transform:translateY(2px);box-shadow:0 2px 0 var(--shadow)}
 .chip:active{transform:translateY(4px);box-shadow:none}
 .lv .chip,.len .chip{flex:1 1 28%}
